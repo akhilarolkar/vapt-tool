@@ -138,6 +138,13 @@
             gap: 24px;
         }
 
+        .stack-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
         .help-panel {
             margin-top: 20px;
             padding: 20px;
@@ -197,6 +204,8 @@
             background: #0b1b2b;
             color: #f4f9ff;
             overflow-x: auto;
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
             box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
         }
 
@@ -617,6 +626,7 @@
             margin-top: 10px;
             font-size: 0.95em;
             color: var(--ink-faint);
+            overflow-wrap: anywhere;
         }
 
         .finding {
@@ -665,10 +675,19 @@
             margin: 10px 0;
             font-size: 0.95em;
             line-height: 1.6;
+            overflow-wrap: anywhere;
+        }
+
+        .table-wrap {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            border-radius: var(--radius-lg);
         }
 
         table {
             width: 100%;
+            min-width: 620px;
             border-collapse: collapse;
             margin-top: 20px;
             border: 1px solid var(--border-light);
@@ -814,8 +833,26 @@
                 padding: 10px 12px;
             }
 
+            .stack-actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .stack-actions > * {
+                width: 100%;
+                text-align: center;
+            }
+
             .chips {
                 gap: 8px;
+            }
+
+            .report-group {
+                padding: 18px;
+            }
+
+            .finding {
+                padding: 16px;
             }
 
             .chip {
@@ -853,6 +890,109 @@
                 width: auto;
             }
         }
+
+        @media (max-width: 560px) {
+            body {
+                overflow-x: hidden;
+            }
+
+            .container {
+                padding: 16px 12px;
+                gap: 16px;
+            }
+
+            .card {
+                padding: 16px;
+                border-radius: var(--radius-md);
+            }
+
+            h1 {
+                font-size: 1.75em;
+                line-height: 1.15;
+            }
+
+            h2 {
+                font-size: 1.18em;
+            }
+
+            h3 {
+                font-size: 1em;
+            }
+
+            input[type="file"] {
+                width: 100%;
+                padding: 14px 16px;
+                font-size: 0.95em;
+            }
+
+            .summary-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .summary-item {
+                padding: 18px;
+            }
+
+            .summary-value {
+                font-size: 1.9em;
+            }
+
+            .toolbar {
+                margin: 16px 0;
+            }
+
+            .chips {
+                margin: 0;
+            }
+
+            .command-label {
+                font-size: 0.72em;
+                letter-spacing: 0.03em;
+            }
+
+            .command-block {
+                padding: 14px 54px 14px 14px;
+                font-size: 0.9em;
+                line-height: 1.5;
+            }
+
+            .copy-btn {
+                right: 8px;
+                width: 34px;
+                height: 34px;
+            }
+
+            .copy-feedback {
+                display: none;
+            }
+
+            .badge {
+                padding: 5px 10px;
+                font-size: 0.76em;
+            }
+
+            .report-group > p,
+            .finding > p {
+                font-size: 0.92em;
+            }
+
+            th, td {
+                padding: 9px 10px;
+                font-size: 0.88em;
+            }
+
+            .toast {
+                top: 12px;
+                right: 12px;
+                left: 12px;
+                padding: 14px 16px;
+            }
+
+            .toast-icon {
+                width: 32px;
+                height: 32px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -876,7 +1016,7 @@
             <p>Upload one or more JSON reports from Trivy/Bandit/ZAP and generate grouped output.</p>
             <form method="post" action="/upload-ui" enctype="multipart/form-data" style="margin-top:12px; display:grid; gap:10px;">
                 <input name="files" type="file" accept=".json,application/json" multiple required>
-                <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                <div class="stack-actions">
                     <button type="submit">Generate consolidated report</button>
                 </div>
             </form>
@@ -1032,31 +1172,33 @@
         {% if scan_summary is defined and scan_summary %}
         <section class="card">
             <h2>Scan Summary</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Scan Type</th>
-                        {% for severity in severity_order %}<th>{{ severity }}</th>{% endfor %}
-                        <th>Total</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for row in scan_summary %}
-                    <tr>
-                        <td>{{ row.scan_type }}</td>
-                        {% for severity in severity_order %}<td>{{ row.summary.get(severity, 0) }}</td>{% endfor %}
-                        <td>{{ row.total }}</td>
-                    </tr>
-                    {% endfor %}
-                    {% if grand_total is defined and grand_total %}
-                    <tr>
-                        <td>{{ grand_total.scan_type }}</td>
-                        {% for severity in severity_order %}<td>{{ grand_total.summary.get(severity, 0) }}</td>{% endfor %}
-                        <td>{{ grand_total.total }}</td>
-                    </tr>
-                    {% endif %}
-                </tbody>
-            </table>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Scan Type</th>
+                            {% for severity in severity_order %}<th>{{ severity }}</th>{% endfor %}
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in scan_summary %}
+                        <tr>
+                            <td>{{ row.scan_type }}</td>
+                            {% for severity in severity_order %}<td>{{ row.summary.get(severity, 0) }}</td>{% endfor %}
+                            <td>{{ row.total }}</td>
+                        </tr>
+                        {% endfor %}
+                        {% if grand_total is defined and grand_total %}
+                        <tr>
+                            <td>{{ grand_total.scan_type }}</td>
+                            {% for severity in severity_order %}<td>{{ grand_total.summary.get(severity, 0) }}</td>{% endfor %}
+                            <td>{{ grand_total.total }}</td>
+                        </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
         </section>
         {% endif %}
 
