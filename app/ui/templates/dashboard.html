@@ -6,21 +6,24 @@
     <title>DevSecOps Report Generator</title>
     <style>
         :root {
-            --bg-gradient-start: #f8fbff;
-            --bg-gradient-end: #f0f7ff;
+            --bg-gradient-start: #f5f8fc;
+            --bg-gradient-end: #edf3f9;
             --surface: #ffffff;
-            --surface-alt: #f8fafb;
-            --surface-hover: #fafbff;
-            --ink: #0f1322;
-            --ink-soft: #3d4556;
-            --ink-faint: #6b7a8f;
-            --border: #d6e0ec;
-            --border-light: #e8eef7;
-            --brand: #0f4c81;
-            --brand-strong: #062e4f;
-            --brand-light: #e3f0ff;
-            --brand-lighter: #f0f6ff;
-            --brand-accent: #1f8ceb;
+            --surface-alt: #f7f9fc;
+            --surface-hover: #f9fbfe;
+            --ink: #101828;
+            --ink-soft: #344054;
+            --ink-faint: #667085;
+            --border: #d0d9e5;
+            --border-light: #e3eaf2;
+            --border-strong: #b6c4d6;
+            --brand: #153f6f;
+            --brand-strong: #0a2745;
+            --brand-light: #d9e7f7;
+            --brand-lighter: #eef4fb;
+            --brand-accent: #2c6fb2;
+            --accent-warm: #b6925b;
+            --accent-warm-soft: #f5efe4;
             --critical: #7a1427;
             --critical-bg: #fdecef;
             --critical-light: #ffe8eb;
@@ -33,14 +36,14 @@
             --low: #1e7a57;
             --low-bg: #eaf8f1;
             --low-light: #f0fcf7;
-            --shadow-sm: 0 1px 2px rgba(15, 19, 34, 0.08);
-            --shadow-md: 0 4px 12px rgba(15, 19, 34, 0.1);
-            --shadow-lg: 0 12px 24px rgba(15, 19, 34, 0.12);
-            --shadow-xl: 0 20px 40px rgba(15, 19, 34, 0.15);
+            --shadow-sm: 0 2px 6px rgba(16, 24, 40, 0.05);
+            --shadow-md: 0 10px 24px rgba(16, 24, 40, 0.07);
+            --shadow-lg: 0 16px 34px rgba(16, 24, 40, 0.1);
+            --shadow-xl: 0 24px 54px rgba(16, 24, 40, 0.14);
             --radius-sm: 8px;
             --radius-md: 12px;
             --radius-lg: 16px;
-            --radius-xl: 20px;
+            --radius-xl: 24px;
         }
 
         * {
@@ -49,21 +52,21 @@
 
         body {
             margin: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+            font-family: "Aptos", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
             color: var(--ink);
             background:
-                radial-gradient(circle at top right, rgba(31, 140, 235, 0.08), transparent 40%),
-                radial-gradient(circle at bottom left, rgba(15, 76, 129, 0.06), transparent 50%),
+                radial-gradient(circle at top right, rgba(44, 111, 178, 0.08), transparent 38%),
+                radial-gradient(circle at 15% 20%, rgba(182, 146, 91, 0.06), transparent 28%),
                 linear-gradient(180deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
             min-height: 100vh;
         }
 
         .container {
-            max-width: 1280px;
+            max-width: 1320px;
             margin: 0 auto;
-            padding: 40px 24px;
+            padding: 36px 24px 48px;
             display: grid;
-            gap: 28px;
+            gap: 24px;
         }
 
         h1 {
@@ -95,40 +98,76 @@
             line-height: 1.6;
         }
 
-        .hero {
-            background: linear-gradient(135deg, rgba(6, 46, 79, 0.98), rgba(15, 76, 129, 0.95));
-            color: #f6fbff;
-            border-radius: var(--radius-xl);
-            padding: 48px;
-            margin-bottom: 12px;
-            box-shadow: var(--shadow-xl);
+        .eyebrow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 6px 12px;
+            border-radius: 999px;
+            background: rgba(21, 63, 111, 0.08);
+            color: var(--brand);
+            font-size: 0.74em;
+            font-weight: 800;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            width: 100%;
+            text-align: center;
         }
 
-        .hero h1 {
-            color: #ffffff;
-            margin-bottom: 12px;
-            font-size: 2.8em;
+        .page-header {
+            display: grid;
+            gap: 12px;
+        }
+
+        .page-lead {
+            max-width: 760px;
+            font-size: 1em;
+            line-height: 1.68;
+        }
+
+        .stat-strip {
+            margin-top: 24px;
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 14px;
+        }
+
+        .stat-panel {
+            padding: 16px 18px;
+            border-radius: 16px;
+            border: 1px solid var(--border-light);
+            background: linear-gradient(180deg, var(--surface-alt), #ffffff);
+        }
+
+        .stat-panel-label {
+            font-size: 0.76em;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--ink-faint);
+            font-weight: 800;
+        }
+
+        .stat-panel-value {
+            margin-top: 8px;
+            color: var(--brand-strong);
+            font-size: 1.7em;
+            line-height: 1;
             letter-spacing: -0.05em;
-        }
-
-        .hero > p {
-            color: rgba(255, 255, 255, 0.85);
-            font-size: 1.05em;
-            max-width: 780px;
-            line-height: 1.7;
+            font-weight: 800;
         }
 
         .card {
             background: var(--surface);
             border: 1px solid var(--border-light);
-            border-radius: var(--radius-lg);
+            border-radius: var(--radius-xl);
             padding: 32px;
             box-shadow: var(--shadow-md);
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .card:hover {
-            border-color: var(--border);
+            border-color: var(--border-strong);
             box-shadow: var(--shadow-lg);
         }
 
@@ -145,13 +184,69 @@
             align-items: center;
         }
 
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .section-copy {
+            display: grid;
+            gap: 8px;
+            width: 100%;
+        }
+
+        .section-note {
+            max-width: 640px;
+            font-size: 0.95em;
+            color: var(--ink-faint);
+        }
+
+        .upload-panel {
+            margin-top: 24px;
+            padding: 22px;
+            border-radius: 20px;
+            border: 1px solid var(--border-light);
+            background:
+                linear-gradient(180deg, rgba(21, 63, 111, 0.025), rgba(255, 255, 255, 0)),
+                linear-gradient(180deg, var(--surface-alt), #ffffff);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.75);
+        }
+
+        .upload-form {
+            display: grid;
+            gap: 16px;
+        }
+
+        .upload-hint {
+            font-size: 0.92em;
+            color: var(--ink-faint);
+            text-align: center;
+        }
+
+        .upload-field {
+            padding: 16px;
+            border-radius: 18px;
+            border: 1px solid var(--border-light);
+            background: rgba(255, 255, 255, 0.82);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .upload-actions {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
         .help-panel {
             margin-top: 20px;
             padding: 20px;
             border-radius: var(--radius-lg);
             border: 1px solid var(--border-light);
             background:
-                linear-gradient(180deg, rgba(15, 76, 129, 0.03), rgba(31, 140, 235, 0.02)),
+                linear-gradient(180deg, rgba(21, 63, 111, 0.03), rgba(44, 111, 178, 0.02)),
                 var(--surface-alt);
             display: grid;
             gap: 16px;
@@ -180,7 +275,7 @@
             height: 34px;
             border-radius: 999px;
             border: 1px solid var(--border);
-            background: rgba(255, 255, 255, 0.82);
+            background: rgba(255, 255, 255, 0.92);
             color: var(--brand-strong);
             display: grid;
             place-items: center;
@@ -192,7 +287,7 @@
         .help-panel[open] .help-panel-toggle {
             transform: rotate(180deg);
             background: var(--brand-light);
-            border-color: rgba(15, 76, 129, 0.18);
+            border-color: rgba(21, 63, 111, 0.18);
         }
 
         .help-panel-content {
@@ -211,7 +306,7 @@
             padding: 18px;
             border-radius: var(--radius-md);
             border: 1px solid var(--border-light);
-            background: rgba(255, 255, 255, 0.88);
+            background: rgba(255, 255, 255, 0.96);
             box-shadow: var(--shadow-sm);
         }
 
@@ -258,7 +353,7 @@
             margin-bottom: 8px;
             padding: 4px 10px;
             border-radius: 999px;
-            background: var(--brand-light);
+            background: rgba(21, 63, 111, 0.08);
             color: var(--brand-strong);
             font-size: 0.78em;
             font-weight: 700;
@@ -333,7 +428,7 @@
             border: 1px solid rgba(30, 122, 87, 0.18);
             background: linear-gradient(135deg, #f7fffb, #edf9f2);
             color: var(--ink);
-            box-shadow: var(--shadow-xl);
+            box-shadow: 0 24px 48px rgba(16, 24, 40, 0.16);
             display: flex;
             gap: 12px;
             align-items: flex-start;
@@ -417,10 +512,11 @@
 
         input[type="file"] {
             display: block;
-            padding: 16px 20px;
-            border: 2px dashed var(--border);
-            border-radius: var(--radius-lg);
-            background: var(--surface-alt);
+            width: 100%;
+            padding: 18px 20px;
+            border: 1.5px dashed var(--border-strong);
+            border-radius: 18px;
+            background: linear-gradient(180deg, #ffffff, var(--surface-alt));
             color: var(--ink);
             font-size: 1em;
             cursor: pointer;
@@ -428,14 +524,14 @@
         }
 
         input[type="file"]:hover {
-            border-color: var(--brand);
-            background: var(--brand-lighter);
+            border-color: var(--brand-accent);
+            background: linear-gradient(180deg, var(--brand-lighter), #ffffff);
         }
 
         input[type="file"]:focus {
             outline: none;
             border-color: var(--brand-accent);
-            box-shadow: 0 0 0 3px var(--brand-light);
+            box-shadow: 0 0 0 3px rgba(217, 231, 247, 0.6);
         }
 
         .form-group {
@@ -448,33 +544,36 @@
         button {
             border: none;
             border-radius: 999px;
-            padding: 12px 28px;
-            background: linear-gradient(135deg, var(--brand), var(--brand-accent));
+            padding: 12px 24px;
+            background: linear-gradient(135deg, var(--brand-strong), var(--brand));
             color: #fff;
             font-weight: 700;
-            font-size: 1em;
+            font-size: 0.96em;
             cursor: pointer;
             text-decoration: none;
             display: inline-block;
-            box-shadow: var(--shadow-md);
+            box-shadow: 0 10px 22px rgba(10, 39, 69, 0.16);
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            letter-spacing: 0.02em;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
         }
 
         .btn:hover:not(.disabled),
         button:hover:not(.disabled) {
             box-shadow: var(--shadow-lg);
+            transform: translateY(-1px);
         }
 
         .btn:active:not(.disabled),
         button:active:not(.disabled) {
             box-shadow: var(--shadow-md);
+            transform: translateY(0);
         }
 
         .btn.secondary {
             background: var(--surface);
             color: var(--brand);
-            border: 2px solid var(--brand);
+            border: 1px solid var(--border-strong);
             box-shadow: none;
         }
 
@@ -501,7 +600,7 @@
             background: linear-gradient(180deg, var(--surface), var(--surface-alt));
             box-shadow: var(--shadow-sm);
             transition: all 0.3s;
-            border-left: 4px solid var(--border);
+            border-top: 4px solid var(--border);
         }
 
         .summary-item:hover {
@@ -509,22 +608,22 @@
         }
 
         .summary-item.critical {
-            border-left-color: var(--critical);
+            border-top-color: var(--critical);
             background: linear-gradient(180deg, rgba(122, 20, 39, 0.03), rgba(122, 20, 39, 0.01));
         }
 
         .summary-item.high {
-            border-left-color: var(--high);
+            border-top-color: var(--high);
             background: linear-gradient(180deg, rgba(177, 79, 28, 0.03), rgba(177, 79, 28, 0.01));
         }
 
         .summary-item.medium {
-            border-left-color: var(--medium);
+            border-top-color: var(--medium);
             background: linear-gradient(180deg, rgba(31, 94, 155, 0.03), rgba(31, 94, 155, 0.01));
         }
 
         .summary-item.low {
-            border-left-color: var(--low);
+            border-top-color: var(--low);
             background: linear-gradient(180deg, rgba(30, 122, 87, 0.03), rgba(30, 122, 87, 0.01));
         }
 
@@ -617,9 +716,9 @@
 
         .search-input {
             width: 100%;
-            padding: 14px 16px;
+            padding: 15px 18px;
             border: 1px solid var(--border);
-            border-radius: var(--radius-md);
+            border-radius: 14px;
             background: var(--surface-alt);
             color: var(--ink);
             font-size: 0.98em;
@@ -642,16 +741,18 @@
         }
 
         .chip {
-            padding: 8px 16px;
+            padding: 9px 16px;
             border-radius: 999px;
-            border: 2px solid var(--border);
+            border: 1px solid var(--border);
             background: var(--surface);
             color: var(--ink-soft);
-            font-size: 0.9em;
+            font-size: 0.88em;
             font-weight: 700;
             cursor: pointer;
             transition: all 0.3s;
             letter-spacing: 0.02em;
+            box-shadow: var(--shadow-sm);
+            text-transform: none;
         }
 
         .chip:hover {
@@ -700,7 +801,7 @@
             padding: 16px 20px;
             border-radius: var(--radius-lg);
             border: 1px solid #efc8c8;
-            background: #fff1f1;
+            background: linear-gradient(180deg, #fff7f7, #fff1f1);
             color: #842b2b;
         }
 
@@ -724,7 +825,9 @@
             border-radius: var(--radius-lg);
             padding: 24px;
             margin-top: 16px;
-            background: linear-gradient(180deg, var(--surface), var(--surface-alt));
+            background:
+                linear-gradient(180deg, rgba(21, 63, 111, 0.015), rgba(255, 255, 255, 0)),
+                linear-gradient(180deg, var(--surface), var(--surface-alt));
             box-shadow: var(--shadow-sm);
             transition: all 0.3s;
         }
@@ -761,12 +864,12 @@
 
         .finding {
             border: 1px solid var(--border-light);
-            border-radius: var(--radius-md);
-            padding: 18px;
+            border-radius: 14px;
+            padding: 20px;
             margin-top: 12px;
             background: var(--surface);
             transition: all 0.3s;
-            border-left: 3px solid var(--border);
+            border-left: 4px solid var(--border);
         }
 
         .finding[data-severity="Critical"] {
@@ -791,8 +894,7 @@
 
         .finding:hover {
             box-shadow: var(--shadow-sm);
-            border-left-width: 4px;
-            padding-left: 16px;
+            transform: translateY(-1px);
         }
 
         .finding h3 {
@@ -838,7 +940,7 @@
             text-transform: uppercase;
             font-size: 0.85em;
             letter-spacing: 0.06em;
-            background: linear-gradient(180deg, var(--surface-alt), #ffffff);
+            background: linear-gradient(180deg, #f9fbfd, #ffffff);
             font-weight: 800;
         }
 
@@ -891,16 +993,16 @@
         }
 
         @media (max-width: 1024px) {
-            .hero {
-                padding: 32px;
-            }
-
             .card {
                 padding: 24px;
             }
 
             .container {
                 padding: 28px 20px;
+            }
+
+            .stat-strip {
+                grid-template-columns: 1fr;
             }
 
             .grid-2 {
@@ -917,18 +1019,6 @@
         }
 
         @media (max-width: 768px) {
-            .hero {
-                padding: 24px;
-            }
-
-            .hero h1 {
-                font-size: 1.8em;
-            }
-
-            .hero > p {
-                font-size: 1em;
-            }
-
             .card {
                 padding: 20px;
             }
@@ -977,6 +1067,15 @@
                 gap: 8px;
             }
 
+            .section-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .upload-panel {
+                padding: 18px;
+            }
+
             .report-group {
                 padding: 18px;
             }
@@ -1010,7 +1109,7 @@
             .btn,
             button {
                 padding: 10px 20px;
-                font-size: 0.95em;
+                font-size: 0.9em;
             }
 
             .help-panel {
@@ -1056,6 +1155,15 @@
 
             h3 {
                 font-size: 1em;
+            }
+
+            .eyebrow {
+                font-size: 0.68em;
+                letter-spacing: 0.1em;
+            }
+
+            .stat-panel {
+                padding: 14px 16px;
             }
 
             input[type="file"] {
@@ -1180,18 +1288,44 @@
 
     <div class="container">
         <section class="card">
-            <h1>DevSecOps Report Generator</h1>
-            <p>Upload one or more JSON reports from Trivy/Bandit/ZAP and generate grouped output.</p>
-            <form method="post" action="/upload-ui" enctype="multipart/form-data" style="margin-top:12px; display:grid; gap:10px;">
-                <input name="files" type="file" accept=".json,application/json" multiple required>
-                <div class="stack-actions">
-                    <button type="submit">Generate consolidated report</button>
+            <div class="page-header">
+                <div>
+                    <span class="eyebrow">Report Workspace</span>
+                    <h1>DevSecOps Report Generator</h1>
+                    <p class="page-lead">Upload Trivy, Bandit, and ZAP JSON reports to generate a clean consolidated dashboard for review and remediation tracking.</p>
                 </div>
-            </form>
+            </div>
+
+            <div class="stat-strip">
+                <article class="stat-panel">
+                    <div class="stat-panel-label">Processed Files</div>
+                    <div class="stat-panel-value">{{ uploaded_files|length if uploaded_files is defined else 0 }}</div>
+                </article>
+                <article class="stat-panel">
+                    <div class="stat-panel-label">Total Findings</div>
+                    <div class="stat-panel-value">{{ total if total is defined else 0 }}</div>
+                </article>
+                <article class="stat-panel">
+                    <div class="stat-panel-label">Validation Errors</div>
+                    <div class="stat-panel-value">{{ errors|length if errors is defined else 0 }}</div>
+                </article>
+            </div>
+
+            <div class="upload-panel">
+                <p class="upload-hint">Upload one or more JSON reports to generate a consolidated, severity-grouped view.</p>
+                <form class="upload-form" method="post" action="/upload-ui" enctype="multipart/form-data">
+                    <div class="upload-field">
+                        <input name="files" type="file" accept=".json,application/json" multiple required>
+                    </div>
+                    <div class="upload-actions">
+                        <button type="submit">Generate Consolidated Report</button>
+                    </div>
+                </form>
+            </div>
 
             <details class="help-panel" aria-label="JSON report help">
                 <summary>
-                    <h2>How to get JSON files</h2>
+                    <h2>How to get JSON files ?</h2>
                     <span class="help-panel-toggle" aria-hidden="true">⌄</span>
                 </summary>
 
@@ -1283,7 +1417,13 @@
 
         <div class="grid-2">
             <section class="card">
-                <h2>Processed Files</h2>
+                <div class="section-header">
+                    <div class="section-copy">
+                        <span class="eyebrow">Upload Intake</span>
+                        <h2>Processed Files</h2>
+                        <p class="section-note">Reports accepted into the consolidated assessment.</p>
+                    </div>
+                </div>
                 {% if uploaded_files is defined and uploaded_files %}
                 <ul>
                     {% for file in uploaded_files %}
@@ -1296,7 +1436,13 @@
             </section>
 
             <section class="card">
-                <h2>File Errors</h2>
+                <div class="section-header">
+                    <div class="section-copy">
+                        <span class="eyebrow">Validation</span>
+                        <h2>File Errors</h2>
+                        <p class="section-note">Items that need correction before they can be fully included.</p>
+                    </div>
+                </div>
                 {% if errors is defined and errors %}
                 <div class="alert">
                     <strong>Some files need attention</strong>
@@ -1314,7 +1460,13 @@
 
         {% if has_results %}
         <section class="card">
-            <h2>Severity Summary</h2>
+            <div class="section-header">
+                <div class="section-copy">
+                    <span class="eyebrow">Risk Posture</span>
+                    <h2>Severity Summary</h2>
+                    <p class="section-note">High-level distribution of findings across severity levels.</p>
+                </div>
+            </div>
             <div class="summary-grid">
                 {% for severity in severity_order %}
                 <article class="summary-item {{ severity | lower }}">
@@ -1326,8 +1478,13 @@
         </section>
 
         <section class="card">
-            <!-- <h2>Report Actions</h2> -->
-            <!-- <p>HTML and PDF are temporary in-memory artifacts.</p> -->
+            <div class="section-header">
+                <div class="section-copy">
+                    <span class="eyebrow">Deliverables</span>
+                    <!-- <h2>Report Actions</h2> -->
+                    <!-- <p class="section-note">Export the current consolidated output once generation is complete.</p> -->
+                </div>
+            </div>
             {% if pdf_status_url is defined and pdf_status_url %}
             <p class="muted" data-pdf-status data-status-url="{{ pdf_status_url }}" style="margin-top:8px;">Preparing PDF in background...</p>
             <div class="progress"><div data-pdf-progress-fill></div></div>
@@ -1345,7 +1502,13 @@
 
         {% if scan_summary is defined and scan_summary %}
         <section class="card">
-            <h2>Scan Summary</h2>
+            <div class="section-header">
+                <div class="section-copy">
+                    <span class="eyebrow">Coverage View</span>
+                    <h2>Scan Summary</h2>
+                    <p class="section-note">Severity totals organized by scan type for a quick comparative view.</p>
+                </div>
+            </div>
             <div class="table-wrap">
                 <table>
                     <thead>
@@ -1377,7 +1540,13 @@
         {% endif %}
 
         <section class="card">
-            <h2>Detailed Findings by Report</h2>
+            <div class="section-header">
+                <div class="section-copy">
+                    <span class="eyebrow">Working Detail</span>
+                    <h2>Detailed Findings by Report</h2>
+                    <p class="section-note">Search, filter, and review grouped findings with remediation details.</p>
+                </div>
+            </div>
             <div class="toolbar">
                 <input
                     class="search-input"
@@ -1399,8 +1568,13 @@
 
             {% for group in grouped_reports %}
             <article class="report-group" data-report-group data-search-text="{{ (group.source_file ~ ' ' ~ group.scan_type ~ ' ' ~ group.tool)|lower }}">
-                <h3>{{ group.source_file }}</h3>
-                <p style="margin-top:4px;">Scan Type: {{ group.scan_type }} | Tool: {{ group.tool }} | Findings: {{ group.total }}</p>
+                <div class="section-header" style="margin-bottom:10px;">
+                    <div class="section-copy" style="gap:4px;">
+                        <h3>{{ group.source_file }}</h3>
+                        <p style="margin-top:0;">Scan Type: {{ group.scan_type }} | Tool: {{ group.tool }} | Findings: {{ group.total }}</p>
+                    </div>
+                    <span class="eyebrow" style="background:var(--accent-warm-soft); color:var(--brand-strong);">Report Group</span>
+                </div>
 
                 {% for finding in group.findings %}
                 <article
