@@ -662,47 +662,113 @@
         }
 
         .pagination {
-            display: flex;
+            display: inline-flex;
             align-items: center;
             gap: 10px;
             flex-wrap: wrap;
+            padding: 8px;
+            border: 1px solid rgba(21, 63, 111, 0.1);
+            border-radius: 22px;
+            background:
+                linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(247, 250, 253, 0.94)),
+                var(--surface);
+            box-shadow:
+                inset 0 1px 0 rgba(255, 255, 255, 0.9),
+                0 12px 30px rgba(16, 24, 40, 0.08);
         }
 
         .pagination-pages {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
             flex-wrap: wrap;
+            padding: 2px;
+            border-radius: 16px;
+            background: rgba(21, 63, 111, 0.04);
         }
 
         .pagination-btn {
             min-width: 42px;
-            padding: 9px 14px;
-            border-radius: 999px;
-            border: 1px solid var(--border);
-            background: var(--surface);
-            color: var(--brand-strong);
+            min-height: 42px;
+            padding: 0 14px;
+            border-radius: 14px;
+            border: 1px solid transparent;
+            background: transparent;
+            color: var(--ink-soft);
             font-weight: 700;
             font-size: 0.92em;
-            box-shadow: var(--shadow-sm);
+            box-shadow: none;
+            transition:
+                transform 0.2s ease,
+                background 0.2s ease,
+                border-color 0.2s ease,
+                color 0.2s ease,
+                box-shadow 0.2s ease;
         }
 
-        .pagination-btn:hover:not(:disabled) {
-            border-color: rgba(15, 76, 129, 0.28);
-            background: var(--brand-lighter);
-            box-shadow: var(--shadow-md);
+        .pagination-btn:hover:not(:disabled):not(.active) {
+            border-color: rgba(21, 63, 111, 0.12);
+            background: rgba(255, 255, 255, 0.92);
+            color: var(--brand-strong);
+            box-shadow: var(--shadow-sm);
+            transform: translateY(-1px);
+        }
+
+        .pagination-btn:focus-visible {
+            outline: none;
+            border-color: rgba(44, 111, 178, 0.45);
+            box-shadow: 0 0 0 4px rgba(44, 111, 178, 0.14);
         }
 
         .pagination-btn.active {
             background: linear-gradient(135deg, var(--brand), var(--brand-accent));
             color: #ffffff;
             border-color: transparent;
+            box-shadow: 0 12px 24px rgba(21, 63, 111, 0.22);
         }
 
         .pagination-btn:disabled {
-            opacity: 0.45;
+            opacity: 0.42;
             cursor: not-allowed;
             box-shadow: none;
+        }
+
+        .pagination-btn--nav {
+            min-width: auto;
+            gap: 8px;
+            padding: 0 16px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(21, 63, 111, 0.05);
+            color: var(--brand-strong);
+            border-color: rgba(21, 63, 111, 0.08);
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
+            font-size: 0.78em;
+        }
+
+        .pagination-btn--nav:hover:not(:disabled) {
+            background: rgba(21, 63, 111, 0.09);
+        }
+
+        .pagination-btn--number {
+            min-width: 42px;
+            padding: 0 12px;
+        }
+
+        .pagination-ellipsis {
+            min-width: 32px;
+            text-align: center;
+            color: var(--ink-faint);
+            font-weight: 700;
+            letter-spacing: 0.2em;
+            user-select: none;
+        }
+
+        .pagination-arrow {
+            font-size: 1.1em;
+            line-height: 1;
         }
 
         .empty-state {
@@ -736,36 +802,68 @@
             box-shadow: 0 0 0 3px var(--brand-light);
         }
 
+        .chips {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px;
+            border: 1px solid rgba(21, 63, 111, 0.1);
+            border-radius: 22px;
+            background:
+                linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(247, 250, 253, 0.94)),
+                var(--surface);
+            box-shadow:
+                inset 0 1px 0 rgba(255, 255, 255, 0.9),
+                0 12px 30px rgba(16, 24, 40, 0.08);
+        }
+
         .chips > .muted {
-            font-weight: 700;
+            padding: 0 6px 0 4px;
+            color: var(--ink-faint);
+            font-weight: 800;
+            letter-spacing: 0.02em;
         }
 
         .chip {
-            padding: 9px 16px;
-            border-radius: 999px;
-            border: 1px solid var(--border);
-            background: var(--surface);
+            min-height: 42px;
+            padding: 0 18px;
+            border-radius: 14px;
+            border: 1px solid transparent;
+            background: transparent;
             color: var(--ink-soft);
-            font-size: 0.88em;
+            font-size: 0.9em;
             font-weight: 700;
             cursor: pointer;
-            transition: all 0.3s;
+            transition:
+                transform 0.2s ease,
+                background 0.2s ease,
+                border-color 0.2s ease,
+                color 0.2s ease,
+                box-shadow 0.2s ease;
             letter-spacing: 0.02em;
-            box-shadow: var(--shadow-sm);
+            box-shadow: none;
             text-transform: none;
         }
 
-        .chip:hover {
-            border-color: var(--brand);
-            background: var(--brand-lighter);
+        .chip:hover:not(.active) {
+            border-color: rgba(21, 63, 111, 0.12);
+            background: rgba(255, 255, 255, 0.92);
             color: var(--brand-strong);
+            box-shadow: var(--shadow-sm);
+            transform: translateY(-1px);
+        }
+
+        .chip:focus-visible {
+            outline: none;
+            border-color: rgba(44, 111, 178, 0.45);
+            box-shadow: 0 0 0 4px rgba(44, 111, 178, 0.14);
         }
 
         .chip.active {
             background: linear-gradient(135deg, var(--brand), var(--brand-accent));
             color: #fff;
             border-color: transparent;
-            box-shadow: var(--shadow-md);
+            box-shadow: 0 12px 24px rgba(21, 63, 111, 0.22);
         }
 
         .badge {
@@ -860,6 +958,7 @@
         .report-findings-summary {
             font-size: 0.92em;
             color: var(--ink-faint);
+            padding: 0 4px;
         }
 
         .finding {
@@ -1095,6 +1194,7 @@
 
             .pagination {
                 justify-content: space-between;
+                width: 100%;
             }
 
             .report-findings-toolbar {
@@ -1190,6 +1290,10 @@
 
             .chips {
                 margin: 0;
+                width: 100%;
+                gap: 6px;
+                padding: 6px;
+                border-radius: 18px;
             }
 
             .command-label {
@@ -1237,15 +1341,34 @@
 
             .pagination {
                 gap: 8px;
+                padding: 6px;
+                border-radius: 18px;
             }
 
             .pagination-pages {
-                gap: 6px;
+                gap: 4px;
+                width: 100%;
+                justify-content: center;
             }
 
             .pagination-btn {
                 min-width: 38px;
-                padding: 8px 12px;
+                min-height: 38px;
+                padding: 0 12px;
+                border-radius: 12px;
+            }
+
+            .chip {
+                min-height: 38px;
+                padding: 0 14px;
+                border-radius: 12px;
+                flex: 1 1 auto;
+                justify-content: center;
+            }
+
+            .pagination-btn--nav {
+                justify-content: space-between;
+                flex: 1 1 calc(50% - 4px);
             }
 
             .toast-icon {
@@ -1557,9 +1680,9 @@
                 >
                 <div class="chips" id="severity-toolbar">
                     <span class="muted" style="align-self:center;">Filter:</span>
-                    <button class="chip active" type="button" data-severity-filter="All">All</button>
+                    <button class="chip active" type="button" data-severity-filter="All" aria-pressed="true">All</button>
                     {% for severity in severity_order %}
-                    <button class="chip" type="button" data-severity-filter="{{ severity }}">{{ severity }}</button>
+                    <button class="chip" type="button" data-severity-filter="{{ severity }}" aria-pressed="false">{{ severity }}</button>
                     {% endfor %}
                 </div>
             </div>
@@ -1597,9 +1720,15 @@
                 <div class="report-findings-toolbar" data-report-findings-toolbar hidden>
                     <p class="report-findings-summary" data-report-findings-summary>Showing findings</p>
                     <div class="pagination" data-report-pagination hidden>
-                        <button class="pagination-btn" type="button" data-report-pagination-prev aria-label="Previous findings page">Prev</button>
+                        <button class="pagination-btn pagination-btn--nav" type="button" data-report-pagination-prev aria-label="Previous findings page">
+                            <span class="pagination-arrow" aria-hidden="true">‹</span>
+                            <span>Prev</span>
+                        </button>
                         <div class="pagination-pages" data-report-pagination-pages></div>
-                        <button class="pagination-btn" type="button" data-report-pagination-next aria-label="Next findings page">Next</button>
+                        <button class="pagination-btn pagination-btn--nav" type="button" data-report-pagination-next aria-label="Next findings page">
+                            <span>Next</span>
+                            <span class="pagination-arrow" aria-hidden="true">›</span>
+                        </button>
                     </div>
                 </div>
             </article>
@@ -1672,6 +1801,42 @@
         const findingsPerPage = 4;
         const reportFindingPages = new WeakMap();
 
+        const getVisiblePageTokens = (currentPage, totalPages) => {
+            if (totalPages <= 7) {
+                return Array.from({ length: totalPages }, (_value, index) => index + 1);
+            }
+
+            const pages = new Set([1, totalPages, currentPage - 1, currentPage, currentPage + 1]);
+
+            if (currentPage <= 3) {
+                pages.add(2);
+                pages.add(3);
+                pages.add(4);
+            }
+
+            if (currentPage >= totalPages - 2) {
+                pages.add(totalPages - 1);
+                pages.add(totalPages - 2);
+                pages.add(totalPages - 3);
+            }
+
+            const orderedPages = Array.from(pages)
+                .filter((pageNumber) => pageNumber >= 1 && pageNumber <= totalPages)
+                .sort((left, right) => left - right);
+
+            const tokens = [];
+
+            orderedPages.forEach((pageNumber, index) => {
+                const previousPage = orderedPages[index - 1];
+                if (previousPage && pageNumber - previousPage > 1) {
+                    tokens.push('ellipsis-' + previousPage + '-' + pageNumber);
+                }
+                tokens.push(pageNumber);
+            });
+
+            return tokens;
+        };
+
         const paginateFindingsInGroup = (group, visibleFindings, resetPage = false) => {
             const toolbar = group.querySelector('[data-report-findings-toolbar]');
             const summary = group.querySelector('[data-report-findings-summary]');
@@ -1724,18 +1889,31 @@
             if (pages) {
                 pages.innerHTML = '';
 
-                for (let pageNumber = 1; pageNumber <= totalPages; pageNumber += 1) {
+                getVisiblePageTokens(page, totalPages).forEach((token) => {
+                    if (typeof token !== 'number') {
+                        const ellipsis = document.createElement('span');
+                        ellipsis.className = 'pagination-ellipsis';
+                        ellipsis.textContent = '...';
+                        ellipsis.setAttribute('aria-hidden', 'true');
+                        pages.appendChild(ellipsis);
+                        return;
+                    }
+
+                    const pageNumber = token;
                     const button = document.createElement('button');
                     button.type = 'button';
-                    button.className = 'pagination-btn' + (pageNumber === page ? ' active' : '');
+                    button.className = 'pagination-btn pagination-btn--number' + (pageNumber === page ? ' active' : '');
                     button.textContent = String(pageNumber);
                     button.setAttribute('aria-label', 'Go to findings page ' + pageNumber);
+                    if (pageNumber === page) {
+                        button.setAttribute('aria-current', 'page');
+                    }
                     button.addEventListener('click', () => {
                         reportFindingPages.set(group, pageNumber);
                         paginateFindingsInGroup(group, visibleFindings);
                     });
                     pages.appendChild(button);
-                }
+                });
             }
 
             if (summary) {
@@ -1792,8 +1970,12 @@
         severityButtons.forEach((button) => {
             button.addEventListener('click', () => {
                 selectedSeverity = button.getAttribute('data-severity-filter') || 'All';
-                severityButtons.forEach((b) => b.classList.remove('active'));
+                severityButtons.forEach((b) => {
+                    b.classList.remove('active');
+                    b.setAttribute('aria-pressed', 'false');
+                });
                 button.classList.add('active');
+                button.setAttribute('aria-pressed', 'true');
                 applyFindingFilters();
             });
         });
