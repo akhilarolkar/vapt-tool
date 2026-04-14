@@ -2,4 +2,4 @@ fastapi
 uvicorn
 jinja2
 python-multipart
-fpdf2
+weasyprint

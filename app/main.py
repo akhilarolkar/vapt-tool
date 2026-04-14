@@ -2,8 +2,8 @@ import asyncio
 import json
 import uuid
 
-from fastapi import FastAPI, UploadFile, File, Request, HTTPException
-from fastapi.responses import HTMLResponse, Response
+from fastapi import FastAPI, UploadFile, File, Request, HTTPException, BackgroundTasks
+from fastapi.responses import HTMLResponse, Response, JSONResponse
 from fastapi.templating import Jinja2Templates
 
 from app.parsers.trivy import parse_trivy
@@ -13,9 +13,12 @@ from app.core.normalize import normalize
 from app.core.owasp import map_owasp
 from app.reports.generator import (
     create_report_session,
+    get_or_render_report_html,
+    get_cached_report_pdf,
+    get_report_pdf_status,
     get_report_session,
-    render_report_html,
-    render_report_pdf_bytes,
+    get_session_ttl_minutes,
+    prime_report_pdf_cache,
 )
 
 app = FastAPI()
@@ -23,14 +26,40 @@ app = FastAPI()
 templates = Jinja2Templates(directory="app/ui/templates")
 
 
+SEVERITY_ORDER = ["Critical", "High", "Medium", "Low"]
+
+
+def empty_summary():
+    return {severity: 0 for severity in SEVERITY_ORDER}
+
+
+def infer_scan_type_from_filename(filename: str, tool: str):
+    name = (filename or "").lower()
+    if tool == "Bandit":
+        return "SAST"
+    if tool == "ZAP":
+        return "DAST"
+    if tool == "Trivy":
+        if "image" in name:
+            return "Image Scan"
+        if "fs" in name or "filesystem" in name or "rootfs" in name:
+            return "Filesystem Scan"
+        if "dep" in name or "dependency" in name:
+            return "Dependency Scan"
+        return "Trivy Scan"
+    return "Unknown"
+
+
 def detect_and_parse(data):
     if "Results" in data:
-        return parse_trivy(data)
+        return True, parse_trivy(data)
+    elif "SchemaVersion" in data and isinstance(data.get("Results"), list):
+        return True, parse_trivy(data)
     elif "site" in data:
-        return parse_zap(data)
+        return True, parse_zap(data)
     elif "results" in data and "metrics" in data:
-        return parse_bandit(data)
-    return None
+        return True, parse_bandit(data)
+    return False, []
 
 
 def parse_upload_content(filename: str, content: bytes):
@@ -39,9 +68,14 @@ def parse_upload_content(filename: str, content: bytes):
     except Exception:
         return [], [f"{filename}: invalid JSON"], []
 
-    parsed_vulns = detect_and_parse(data)
-    if not parsed_vulns:
+    recognized, parsed_vulns = detect_and_parse(data)
+    if not recognized:
         return [], [f"{filename}: unsupported report format"], []
+
+    for vuln in parsed_vulns:
+        vuln["source_file"] = filename
+        if not vuln.get("scan_type"):
+            vuln["scan_type"] = infer_scan_type_from_filename(filename, vuln.get("tool", "Unknown"))
 
     return parsed_vulns, [], [filename]
 
@@ -75,31 +109,79 @@ def prepare_vulnerabilities(vulns):
     normalized_vulns = normalize(vulns)
     mapped_vulns = map_owasp(normalized_vulns)
 
-    summary = {}
+    summary = empty_summary()
     for vuln in mapped_vulns:
-        summary[vuln["severity"]] = summary.get(vuln["severity"], 0) + 1
+        severity = vuln.get("severity", "Low")
+        summary[severity] = summary.get(severity, 0) + 1
 
-    return mapped_vulns, summary
+    grouped_map = {}
+    for vuln in mapped_vulns:
+        source_file = vuln.get("source_file", "Unknown file")
+        group = grouped_map.setdefault(
+            source_file,
+            {
+                "source_file": source_file,
+                "tool": vuln.get("tool", "Unknown"),
+                "scan_type": vuln.get("scan_type") or infer_scan_type_from_filename(source_file, vuln.get("tool", "Unknown")),
+                "summary": empty_summary(),
+                "findings": [],
+                "total": 0,
+            },
+        )
+        severity = vuln.get("severity", "Low")
+        group["summary"][severity] = group["summary"].get(severity, 0) + 1
+        group["findings"].append(vuln)
+        group["total"] += 1
+
+    grouped_reports = sorted(grouped_map.values(), key=lambda item: item["source_file"].lower())
+
+    scan_summary_map = {}
+    for vuln in mapped_vulns:
+        scan_type = vuln.get("scan_type") or "Unknown"
+        row = scan_summary_map.setdefault(
+            scan_type,
+            {
+                "scan_type": scan_type,
+                "summary": empty_summary(),
+                "total": 0,
+            },
+        )
+        severity = vuln.get("severity", "Low")
+        row["summary"][severity] = row["summary"].get(severity, 0) + 1
+        row["total"] += 1
+
+    scan_summary = sorted(scan_summary_map.values(), key=lambda item: item["scan_type"].lower())
+
+    grand_total = {
+        "scan_type": "Grand Total",
+        "summary": summary,
+        "total": len(mapped_vulns),
+    }
+
+    return mapped_vulns, summary, grouped_reports, scan_summary, grand_total
 
 
 @app.post("/upload")
-async def upload(files: list[UploadFile] = File(...)):
+async def upload(background_tasks: BackgroundTasks, files: list[UploadFile] = File(...)):
     vulns, errors, uploaded_files = await collect_vulnerabilities(files)
     if not vulns:
         return {"error": "No supported JSON reports found", "details": errors}
 
-    vulns, _summary = await asyncio.to_thread(prepare_vulnerabilities, vulns)
+    vulns, _summary, _grouped_reports, _scan_summary, _grand_total = await asyncio.to_thread(prepare_vulnerabilities, vulns)
 
     report_id = str(uuid.uuid4())
     await asyncio.to_thread(create_report_session, report_id, vulns, uploaded_files, errors)
+    background_tasks.add_task(prime_report_pdf_cache, report_id)
 
     return {
-        "message": "Combined report prepared. HTML and PDF are generated on demand.",
+        "message": "Combined report prepared. Themed PDF is being generated in background.",
         "processed_files": uploaded_files,
         "errors": errors,
         "session_id": report_id,
         "html_report": f"/reports/{report_id}/html",
         "pdf_report": f"/reports/{report_id}/pdf",
+        "pdf_status": f"/reports/{report_id}/pdf-status",
+        "report_session_ttl_minutes": get_session_ttl_minutes(),
         "total_vulnerabilities": len(vulns)
     }
 
@@ -113,12 +195,16 @@ def dashboard(request: Request):
             "request": request,
             "errors": [],
             "uploaded_files": [],
+            "grouped_reports": [],
+            "scan_summary": [],
+            "grand_total": {"scan_type": "Grand Total", "summary": empty_summary(), "total": 0},
+            "severity_order": SEVERITY_ORDER,
         },
     )
 
 
 @app.post("/upload-ui", response_class=HTMLResponse)
-async def upload_ui(request: Request, files: list[UploadFile] = File(...)):
+async def upload_ui(request: Request, background_tasks: BackgroundTasks, files: list[UploadFile] = File(...)):
     vulns, errors, uploaded_files = await collect_vulnerabilities(files)
     if not vulns:
         return templates.TemplateResponse(
@@ -128,13 +214,18 @@ async def upload_ui(request: Request, files: list[UploadFile] = File(...)):
                 "request": request,
                 "errors": errors or ["No supported JSON reports found"],
                 "uploaded_files": uploaded_files,
+                "grouped_reports": [],
+                "scan_summary": [],
+                "grand_total": {"scan_type": "Grand Total", "summary": empty_summary(), "total": 0},
+                "severity_order": SEVERITY_ORDER,
             },
         )
 
-    vulns, summary = await asyncio.to_thread(prepare_vulnerabilities, vulns)
+    vulns, summary, grouped_reports, scan_summary, grand_total = await asyncio.to_thread(prepare_vulnerabilities, vulns)
 
     report_id = str(uuid.uuid4())
     await asyncio.to_thread(create_report_session, report_id, vulns, uploaded_files, errors)
+    background_tasks.add_task(prime_report_pdf_cache, report_id)
 
     return templates.TemplateResponse(
         request=request,
@@ -146,9 +237,15 @@ async def upload_ui(request: Request, files: list[UploadFile] = File(...)):
             "total": len(vulns),
             "errors": errors,
             "uploaded_files": uploaded_files,
+            "grouped_reports": grouped_reports,
+            "scan_summary": scan_summary,
+            "grand_total": grand_total,
+            "severity_order": SEVERITY_ORDER,
             "pdf": f"/reports/{report_id}/pdf",
             "html": f"/reports/{report_id}/html",
-            "report_session_ttl_minutes": 30,
+            "report_session_id": report_id,
+            "pdf_status_url": f"/reports/{report_id}/pdf-status",
+            "report_session_ttl_minutes": get_session_ttl_minutes(),
         },
     )
 
@@ -159,8 +256,18 @@ async def view_report_html(session_id: str):
     if not session:
         raise HTTPException(status_code=404, detail="Report session not found or expired.")
 
-    html_content = await asyncio.to_thread(render_report_html, session)
+    html_content = await asyncio.to_thread(get_or_render_report_html, session_id)
+    if not html_content:
+        raise HTTPException(status_code=404, detail="Report session not found or expired.")
     return HTMLResponse(content=html_content)
+
+
+@app.get("/reports/{session_id}/pdf-status")
+async def report_pdf_status(session_id: str):
+    status = await asyncio.to_thread(get_report_pdf_status, session_id)
+    if not status:
+        raise HTTPException(status_code=404, detail="Report session not found or expired.")
+    return JSONResponse(content=status)
 
 
 @app.get("/reports/{session_id}/pdf")
@@ -169,7 +276,33 @@ async def download_report_pdf(session_id: str):
     if not session:
         raise HTTPException(status_code=404, detail="Report session not found or expired.")
 
-    pdf_bytes = await asyncio.to_thread(render_report_pdf_bytes, session)
+    status = await asyncio.to_thread(get_report_pdf_status, session_id)
+    if not status:
+        raise HTTPException(status_code=404, detail="Report session not found or expired.")
+
+    if status["status"] in {"queued", "processing"}:
+        return JSONResponse(
+            status_code=202,
+            content={
+                "message": "Themed PDF is still being prepared. Please retry in a few seconds.",
+                "status": status["status"],
+            },
+            headers={"Retry-After": "3"},
+        )
+
+    if status["status"] == "failed":
+        await asyncio.to_thread(prime_report_pdf_cache, session_id)
+        status = await asyncio.to_thread(get_report_pdf_status, session_id)
+        if not status or status["status"] != "ready":
+            raise HTTPException(status_code=500, detail="Failed to generate themed PDF.")
+
+    pdf_bytes = await asyncio.to_thread(get_cached_report_pdf, session_id)
+    if not pdf_bytes:
+        await asyncio.to_thread(prime_report_pdf_cache, session_id)
+        pdf_bytes = await asyncio.to_thread(get_cached_report_pdf, session_id)
+        if not pdf_bytes:
+            raise HTTPException(status_code=500, detail="Failed to generate themed PDF.")
+
     return Response(
         content=pdf_bytes,
         media_type="application/pdf",

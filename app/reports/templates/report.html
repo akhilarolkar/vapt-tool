@@ -11,25 +11,36 @@
         }
 
         :root {
-            --bg: #f4f7fb;
+            --bg: #f8fbff;
+            --bg-end: #f0f7ff;
             --surface: #ffffff;
-            --surface-alt: #f7fafe;
-            --ink: #152033;
-            --ink-soft: #53627a;
-            --ink-faint: #73819a;
-            --border: #dbe4ef;
+            --surface-alt: #f8fafb;
+            --surface-hover: #fafbff;
+            --ink: #0f1220;
+            --ink-soft: #3d4556;
+            --ink-faint: #6b7a8f;
+            --border: #d6e0ec;
+            --border-light: #e8eef7;
             --brand: #0f4c81;
-            --brand-strong: #09345a;
+            --brand-strong: #062e4f;
+            --brand-accent: #1f8ceb;
             --critical: #7a1427;
             --critical-bg: #fdecef;
+            --critical-light: #ffe8eb;
             --high: #b14f1c;
             --high-bg: #fff0e7;
+            --high-light: #fff5ea;
             --medium: #1f5e9b;
             --medium-bg: #e9f3ff;
+            --medium-light: #f0f8ff;
             --low: #1e7a57;
             --low-bg: #eaf8f1;
-            --radius-lg: 22px;
-            --radius-md: 16px;
+            --low-light: #f0fcf7;
+            --shadow-sm: 0 1px 3px rgba(15, 19, 34, 0.08);
+            --shadow-md: 0 4px 12px rgba(15, 19, 34, 0.1);
+            --shadow-lg: 0 12px 24px rgba(15, 19, 34, 0.12);
+            --radius-lg: 20px;
+            --radius-md: 14px;
             --radius-sm: 10px;
         }
 
@@ -39,189 +50,337 @@
 
         body {
             margin: 0;
-            font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
             color: var(--ink);
             background:
-                radial-gradient(circle at top left, rgba(31, 140, 235, 0.10), transparent 32%),
-                linear-gradient(180deg, #f8fbff 0%, var(--bg) 100%);
+                radial-gradient(circle at top right, rgba(31, 140, 235, 0.1), transparent 40%),
+                radial-gradient(circle at bottom left, rgba(15, 76, 129, 0.08), transparent 50%),
+                linear-gradient(180deg, var(--bg) 0%, var(--bg-end) 100%);
             font-size: 13px;
-            line-height: 1.55;
+            line-height: 1.6;
         }
 
         .page {
-            max-width: 1180px;
+            max-width: 1200px;
             margin: 0 auto;
-            padding: 28px;
+            padding: 40px;
         }
 
         .hero {
-            background: linear-gradient(135deg, rgba(9, 52, 90, 0.98), rgba(15, 76, 129, 0.95));
+            background: linear-gradient(135deg, rgba(6, 46, 79, 0.98), rgba(15, 76, 129, 0.95));
             color: #f6fbff;
             border-radius: var(--radius-lg);
-            padding: 28px;
-            margin-bottom: 22px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow-lg);
         }
 
         .eyebrow {
             display: inline-block;
-            padding: 7px 11px;
+            padding: 8px 14px;
             border-radius: 999px;
-            background: rgba(255, 255, 255, 0.12);
-            color: rgba(255, 255, 255, 0.9);
+            background: rgba(255, 255, 255, 0.15);
+            color: rgba(255, 255, 255, 0.92);
             font-size: 11px;
-            font-weight: 700;
-            letter-spacing: 0.05em;
+            font-weight: 800;
+            letter-spacing: 0.08em;
             text-transform: uppercase;
         }
 
         .hero h1 {
-            margin: 14px 0 10px;
-            font-size: 32px;
-            line-height: 1.05;
-            letter-spacing: -0.03em;
+            margin: 16px 0 12px;
+            font-size: 2.8em;
+            line-height: 1.1;
+            letter-spacing: -0.04em;
+            font-weight: 800;
         }
 
         .hero p {
             margin: 0;
-            max-width: 760px;
-            color: rgba(246, 251, 255, 0.82);
-            font-size: 14px;
+            max-width: 800px;
+            color: rgba(255, 255, 255, 0.88);
+            font-size: 1em;
+            line-height: 1.7;
         }
 
         .hero-meta {
             display: grid;
             grid-template-columns: repeat(3, minmax(0, 1fr));
-            gap: 12px;
-            margin-top: 20px;
+            gap: 16px;
+            margin-top: 24px;
         }
 
         .meta-card {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: var(--radius-md);
-            padding: 14px;
+            padding: 16px;
+            backdrop-filter: blur(10px);
         }
 
         .meta-label {
-            color: rgba(255, 255, 255, 0.72);
-            font-size: 11px;
-            font-weight: 700;
-            letter-spacing: 0.05em;
+            color: rgba(255, 255, 255, 0.78);
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 0.08em;
             text-transform: uppercase;
         }
 
         .meta-value {
-            margin-top: 8px;
-            font-size: 20px;
+            margin-top: 10px;
+            font-size: 28px;
             font-weight: 800;
-            letter-spacing: -0.02em;
+            letter-spacing: -0.04em;
         }
 
         .section {
-            background: rgba(255, 255, 255, 0.92);
-            border: 1px solid var(--border);
+            background: linear-gradient(180deg, var(--surface), var(--surface-alt));
+            border: 1px solid var(--border-light);
             border-radius: var(--radius-lg);
-            padding: 22px;
-            margin-bottom: 18px;
+            padding: 28px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-md);
+        }
+
+        .section:hover {
+            box-shadow: var(--shadow-lg);
+            border-color: var(--border);
         }
 
         .section h2 {
-            margin: 0 0 8px;
-            font-size: 19px;
-            letter-spacing: -0.02em;
+            margin: 0 0 10px;
+            font-size: 22px;
+            letter-spacing: -0.03em;
+            font-weight: 800;
+            color: var(--ink);
         }
 
         .section p.lead {
             margin: 0;
             color: var(--ink-soft);
+            font-size: 13px;
+            line-height: 1.6;
         }
 
         .summary-grid {
             display: grid;
             grid-template-columns: repeat(4, minmax(0, 1fr));
-            gap: 14px;
-            margin-top: 18px;
+            gap: 16px;
+            margin-top: 20px;
         }
 
         .summary-card {
-            border: 1px solid var(--border);
+            border: 1px solid var(--border-light);
             border-radius: var(--radius-md);
             background: linear-gradient(180deg, #ffffff, var(--surface-alt));
-            padding: 16px;
+            padding: 20px;
+            transition: all 0.3s;
+        }
+
+        .summary-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
         }
 
         .summary-label {
-            font-size: 11px;
+            font-size: 10px;
             font-weight: 800;
-            letter-spacing: 0.05em;
+            letter-spacing: 0.1em;
             text-transform: uppercase;
             color: var(--ink-faint);
         }
 
         .summary-value {
-            margin-top: 10px;
-            font-size: 30px;
+            margin-top: 12px;
+            font-size: 2.6em;
             font-weight: 800;
-            letter-spacing: -0.03em;
+            letter-spacing: -0.04em;
         }
 
         .summary-card.critical {
-            border-top: 4px solid var(--critical);
+            border-left: 4px solid var(--critical);
+            background: linear-gradient(180deg, #ffffff, rgba(122, 20, 39, 0.03));
         }
 
         .summary-card.high {
-            border-top: 4px solid var(--high);
+            border-left: 4px solid var(--high);
+            background: linear-gradient(180deg, #ffffff, rgba(177, 79, 28, 0.03));
         }
 
         .summary-card.medium {
-            border-top: 4px solid var(--medium);
+            border-left: 4px solid var(--medium);
+            background: linear-gradient(180deg, #ffffff, rgba(31, 94, 155, 0.03));
         }
 
         .summary-card.low {
-            border-top: 4px solid var(--low);
+            border-left: 4px solid var(--low);
+            background: linear-gradient(180deg, #ffffff, rgba(30, 122, 87, 0.03));
         }
 
         .findings {
             display: grid;
             gap: 16px;
+            margin-top: 20px;
+        }
+
+        .toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 16px;
+            align-items: center;
+        }
+
+        .filter-btn {
+            border: 2px solid var(--border);
+            border-radius: 999px;
+            background: #ffffff;
+            color: var(--ink-soft);
+            padding: 8px 16px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            letter-spacing: 0.02em;
+        }
+
+        .filter-btn:hover {
+            border-color: var(--brand);
+            background: var(--brand-light);
+            color: var(--brand-strong);
+        }
+
+        .filter-btn.active {
+            background: linear-gradient(135deg, var(--brand), var(--brand-accent));
+            color: #ffffff;
+            border-color: transparent;
+            box-shadow: var(--shadow-md);
+        }
+
+        .group-card {
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-md);
+            background: linear-gradient(180deg, #ffffff, var(--surface-alt));
+            padding: 22px;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.3s;
+        }
+
+        .group-card:hover {
+            box-shadow: var(--shadow-md);
+            border-color: var(--border);
+        }
+
+        .group-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 12px;
+            margin-bottom: 14px;
+        }
+
+        .scan-table {
+            width: 100%;
+            border-collapse: collapse;
             margin-top: 18px;
+            overflow: hidden;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border-light);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .scan-table th,
+        .scan-table td {
+            text-align: left;
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--border-light);
+            font-size: 13px;
+        }
+
+        .scan-table th {
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--ink-faint);
+            font-size: 11px;
+            background: linear-gradient(180deg, var(--surface-alt), #ffffff);
+            font-weight: 800;
+        }
+
+        .scan-table tr:last-child td {
+            border-bottom: none;
+            font-weight: 800;
+            background: var(--surface-alt);
+        }
+
+        .scan-table tr:hover td {
+            background: var(--surface-hover);
         }
 
         .finding-card {
-            border: 1px solid var(--border);
+            border: 1px solid var(--border-light);
             border-radius: var(--radius-md);
-            background: linear-gradient(180deg, #ffffff, #fbfdff);
-            padding: 18px;
+            background: linear-gradient(90deg, #ffffff, var(--surface-alt));
+            padding: 20px;
             page-break-inside: avoid;
             break-inside: avoid;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.3s;
+            border-left: 3px solid var(--border);
+        }
+
+        .finding-card[data-severity="Critical"] {
+            border-left-color: var(--critical);
+            background: linear-gradient(90deg, rgba(122, 20, 39, 0.02), transparent);
+        }
+
+        .finding-card[data-severity="High"] {
+            border-left-color: var(--high);
+            background: linear-gradient(90deg, rgba(177, 79, 28, 0.02), transparent);
+        }
+
+        .finding-card[data-severity="Medium"] {
+            border-left-color: var(--medium);
+            background: linear-gradient(90deg, rgba(31, 94, 155, 0.02), transparent);
+        }
+
+        .finding-card[data-severity="Low"] {
+            border-left-color: var(--low);
+            background: linear-gradient(90deg, rgba(30, 122, 87, 0.02), transparent);
+        }
+
+        .finding-card:hover {
+            box-shadow: var(--shadow-md);
         }
 
         .finding-card h3 {
-            margin: 0 0 12px;
-            font-size: 18px;
+            margin: 0 0 14px;
+            font-size: 1.3em;
             letter-spacing: -0.02em;
+            font-weight: 800;
+            color: var(--ink);
         }
 
         .finding-meta {
             display: flex;
             flex-wrap: wrap;
             gap: 10px;
-            margin-bottom: 14px;
+            margin-bottom: 16px;
         }
 
         .badge,
         .pill {
             display: inline-block;
             border-radius: 999px;
-            padding: 6px 10px;
+            padding: 7px 12px;
             font-size: 11px;
             font-weight: 800;
-            letter-spacing: 0.03em;
+            letter-spacing: 0.04em;
         }
 
         .pill {
-            background: #edf3fb;
+            background: linear-gradient(180deg, #f0f6ff, #e8f2ff);
             color: var(--brand-strong);
+            border: 1px solid var(--brand-light);
         }
 
         .badge.Critical {
@@ -246,18 +405,106 @@
 
         .detail-grid {
             display: grid;
-            grid-template-columns: 180px minmax(0, 1fr);
-            gap: 10px 16px;
+            grid-template-columns: 140px minmax(0, 1fr);
+            gap: 12px 20px;
             align-items: start;
         }
 
         .detail-label {
             color: var(--ink-faint);
-            font-weight: 700;
+            font-weight: 800;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
 
         .detail-value {
             color: var(--ink);
+            line-height: 1.6;
+        }
+
+        .detail-value.muted {
+            color: var(--ink-soft);
+        }
+
+        @media print {
+            body {
+                background: #ffffff;
+            }
+
+            .page {
+                max-width: none;
+                margin: 0;
+                padding: 0;
+            }
+
+            .hero,
+            .section,
+            .finding-card,
+            .summary-card,
+            .group-card {
+                box-shadow: none;
+            }
+        }
+
+        @media (max-width: 1200px) {
+            .page {
+                padding: 32px 24px;
+            }
+
+            .hero {
+                padding: 32px;
+            }
+
+            .section {
+                padding: 24px;
+            }
+
+            .hero-meta {
+                gap: 12px;
+            }
+
+            .summary-grid {
+                gap: 14px;
+            }
+        }
+
+        @media (max-width: 900px) {
+            .hero-meta,
+            .summary-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 640px) {
+            .page {
+                padding: 20px 16px;
+            }
+
+            .hero,
+            .section {
+                padding: 20px;
+            }
+
+            .hero h1 {
+                font-size: 1.8em;
+            }
+
+            .section h2 {
+                font-size: 1.3em;
+            }
+
+            .hero-meta,
+            .summary-grid,
+            .detail-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .summary-value {
+                font-size: 2em;
+            }
+        }
+    </style>
             word-break: break-word;
         }
 
@@ -352,37 +599,112 @@
         </section>
 
         <section class="section">
-            <h2>Detailed Findings</h2>
+            <h2>Scan Summary</h2>
+            <p class="lead">Breakdown by scan category so you can understand which findings came from which report type.</p>
+
+            <table class="scan-table">
+                <thead>
+                    <tr>
+                        <th>Scan Type</th>
+                        {% for severity in severity_order %}
+                        <th>{{ severity }}</th>
+                        {% endfor %}
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in scan_summary %}
+                    <tr>
+                        <td>{{ row.scan_type }}</td>
+                        {% for severity in severity_order %}
+                        <td>{{ row.summary.get(severity, 0) }}</td>
+                        {% endfor %}
+                        <td>{{ row.total }}</td>
+                    </tr>
+                    {% endfor %}
+                    <tr>
+                        <td>{{ grand_total.scan_type }}</td>
+                        {% for severity in severity_order %}
+                        <td>{{ grand_total.summary.get(severity, 0) }}</td>
+                        {% endfor %}
+                        <td>{{ grand_total.total }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section class="section">
+            <h2>Detailed Findings by Report</h2>
             <p class="lead">
                 Each record below shows the normalized severity, originating tool, mapped OWASP category,
                 and remediation detail when present.
             </p>
 
+            <div class="toolbar" id="severity-toolbar">
+                <span class="detail-label">Filter Severity:</span>
+                <button class="filter-btn active" data-severity-filter="All" type="button">All</button>
+                {% for severity in severity_order %}
+                <button class="filter-btn" data-severity-filter="{{ severity }}" type="button">{{ severity }}</button>
+                {% endfor %}
+            </div>
+
             <div class="findings">
-                {% for v in vulns %}
-                <article class="finding-card">
-                    <h3>{{ v.title or "Untitled finding" }}</h3>
-
-                    <div class="finding-meta">
-                        <span class="badge {{ v.severity or 'Low' }}">{{ v.severity or "Low" }}</span>
-                        <span class="pill">Tool: {{ v.tool or "Unknown" }}</span>
-                        <span class="pill">OWASP: {{ v.owasp or "Unknown" }}</span>
+                {% for group in grouped_reports %}
+                <article class="group-card">
+                    <h3>{{ group.source_file }}</h3>
+                    <div class="group-meta">
+                        <span class="pill">Scan Type: {{ group.scan_type }}</span>
+                        <span class="pill">Tool: {{ group.tool }}</span>
+                        <span class="pill">Findings: {{ group.total }}</span>
                     </div>
 
-                    <div class="detail-grid">
-                        <div class="detail-label">Description</div>
-                        <div class="detail-value">{{ v.description or "No description provided." }}</div>
+                    {% for v in group.findings %}
+                    <article class="finding-card" data-severity="{{ v.severity or 'Low' }}">
+                        <h3>{{ v.title or "Untitled finding" }}</h3>
 
-                        <div class="detail-label">Remediation</div>
-                        <div class="detail-value {{ 'muted' if not v.fix else '' }}">{{ v.fix or "No remediation guidance provided." }}</div>
+                        <div class="finding-meta">
+                            <span class="badge {{ v.severity or 'Low' }}">{{ v.severity or "Low" }}</span>
+                            <span class="pill">Tool: {{ v.tool or "Unknown" }}</span>
+                            <span class="pill">OWASP: {{ v.owasp or "Unknown" }}</span>
+                        </div>
 
-                        <div class="detail-label">Reference</div>
-                        <div class="detail-value {{ 'muted' if not v.cve else '' }}">{{ v.cve or "No CVE or test identifier provided." }}</div>
-                    </div>
+                        <div class="detail-grid">
+                            <div class="detail-label">Description</div>
+                            <div class="detail-value">{{ v.description or "No description provided." }}</div>
+
+                            <div class="detail-label">Remediation</div>
+                            <div class="detail-value {{ 'muted' if not v.fix else '' }}">{{ v.fix or "No remediation guidance provided." }}</div>
+
+                            <div class="detail-label">Reference</div>
+                            <div class="detail-value {{ 'muted' if not v.cve else '' }}">{{ v.cve or "No CVE or test identifier provided." }}</div>
+                        </div>
+                    </article>
+                    {% endfor %}
                 </article>
                 {% endfor %}
             </div>
         </section>
     </div>
+
+    <script>
+        const severityButtons = document.querySelectorAll("[data-severity-filter]");
+        const findingCards = document.querySelectorAll("[data-severity]");
+
+        if (severityButtons.length > 0 && findingCards.length > 0) {
+            severityButtons.forEach((button) => {
+                button.addEventListener("click", () => {
+                    const selected = button.getAttribute("data-severity-filter");
+
+                    severityButtons.forEach((btn) => btn.classList.remove("active"));
+                    button.classList.add("active");
+
+                    findingCards.forEach((card) => {
+                        const value = card.getAttribute("data-severity") || "Low";
+                        card.style.display = selected === "All" || value === selected ? "block" : "none";
+                    });
+                });
+            });
+        }
+    </script>
 </body>
 </html>

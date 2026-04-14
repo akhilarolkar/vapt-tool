@@ -1,26 +1,73 @@
 import time
 from threading import Lock
-from typing import Any
 
 from jinja2 import Environment, FileSystemLoader
-from fpdf import FPDF
+from weasyprint import HTML
 
 TEMPLATE_ENV = Environment(loader=FileSystemLoader("app/reports/templates"))
 REPORT_TEMPLATE = TEMPLATE_ENV.get_template("report.html")
+PDF_TEMPLATE = TEMPLATE_ENV.get_template("report_pdf.html")
 
-SESSION_TTL_SECONDS = 30 * 60
+SESSION_TTL_SECONDS = 10 * 60
+PDF_GENERATION_TIMEOUT_SECONDS = 120
 MAX_SESSION_COUNT = 100
 
 _SESSION_LOCK = Lock()
-_REPORT_SESSIONS: dict[str, dict[str, Any]] = {}
+_REPORT_SESSIONS: dict[str, dict[str, object]] = {}
+SEVERITY_ORDER = ["Critical", "High", "Medium", "Low"]
 
 
 def _build_summary(vulns):
-    summary = {}
+    summary = {severity: 0 for severity in SEVERITY_ORDER}
     for vuln in vulns:
         severity = vuln.get("severity", "Low")
         summary[severity] = summary.get(severity, 0) + 1
     return summary
+
+
+def _build_group_context(vulns):
+    grouped_map = {}
+    scan_summary_map = {}
+
+    for vuln in vulns:
+        source_file = vuln.get("source_file", "Unknown file")
+        scan_type = vuln.get("scan_type", "Unknown")
+        severity = vuln.get("severity", "Low")
+
+        group = grouped_map.setdefault(
+            source_file,
+            {
+                "source_file": source_file,
+                "tool": vuln.get("tool", "Unknown"),
+                "scan_type": scan_type,
+                "summary": {label: 0 for label in SEVERITY_ORDER},
+                "findings": [],
+                "total": 0,
+            },
+        )
+        group["summary"][severity] = group["summary"].get(severity, 0) + 1
+        group["findings"].append(vuln)
+        group["total"] += 1
+
+        row = scan_summary_map.setdefault(
+            scan_type,
+            {
+                "scan_type": scan_type,
+                "summary": {label: 0 for label in SEVERITY_ORDER},
+                "total": 0,
+            },
+        )
+        row["summary"][severity] = row["summary"].get(severity, 0) + 1
+        row["total"] += 1
+
+    grouped_reports = sorted(grouped_map.values(), key=lambda item: item["source_file"].lower())
+    scan_summary = sorted(scan_summary_map.values(), key=lambda item: item["scan_type"].lower())
+    grand_total = {
+        "scan_type": "Grand Total",
+        "summary": _build_summary(vulns),
+        "total": len(vulns),
+    }
+    return grouped_reports, scan_summary, grand_total
 
 
 def _prune_sessions(now: float):
@@ -49,6 +96,12 @@ def create_report_session(session_id: str, vulns, uploaded_files, errors):
         "total": len(vulns),
         "uploaded_files": uploaded_files,
         "errors": errors,
+        "html_cache": None,
+        "pdf_cache": None,
+        "pdf_status": "queued",
+        "pdf_error": None,
+        "pdf_started_at": None,
+        "pdf_updated_at": None,
     }
 
     with _SESSION_LOCK:
@@ -65,66 +118,146 @@ def get_report_session(session_id: str):
         return _REPORT_SESSIONS.get(session_id)
 
 
+def get_session_ttl_minutes():
+    return SESSION_TTL_SECONDS // 60
+
+
 def render_report_html(session_payload):
+    grouped_reports, scan_summary, grand_total = _build_group_context(session_payload["vulns"])
     return REPORT_TEMPLATE.render(
         vulns=session_payload["vulns"],
         total=session_payload["total"],
         summary=session_payload["summary"],
+        grouped_reports=grouped_reports,
+        scan_summary=scan_summary,
+        grand_total=grand_total,
+        severity_order=SEVERITY_ORDER,
     )
 
 
-def render_report_pdf_bytes(session_payload):
-    def safe_text(value: Any) -> str:
-        if value is None:
-            return ""
-        return str(value).encode("latin-1", "replace").decode("latin-1")
+def render_report_pdf_html(session_payload):
+    grouped_reports, scan_summary, grand_total = _build_group_context(session_payload["vulns"])
+    return PDF_TEMPLATE.render(
+        vulns=session_payload["vulns"],
+        total=session_payload["total"],
+        summary=session_payload["summary"],
+        grouped_reports=grouped_reports,
+        scan_summary=scan_summary,
+        grand_total=grand_total,
+        severity_order=SEVERITY_ORDER,
+    )
 
-    pdf = FPDF()
-    pdf.set_auto_page_break(auto=True, margin=14)
-    pdf.add_page()
 
-    def write_block(text: str, height: int = 6):
-        pdf.set_x(pdf.l_margin)
-        pdf.multi_cell(pdf.w - pdf.l_margin - pdf.r_margin, height, text)
+def _get_or_build_html_cache(session_id: str):
+    with _SESSION_LOCK:
+        payload = _REPORT_SESSIONS.get(session_id)
+        if not payload:
+            return None
+        if payload["html_cache"]:
+            return payload["html_cache"]
 
-    pdf.set_font("Helvetica", "B", 16)
-    pdf.cell(0, 10, "VAPT Consolidated Report", ln=True)
+    html_content = render_report_html(payload)
 
-    pdf.set_font("Helvetica", "", 11)
-    pdf.cell(0, 8, f"Total Findings: {session_payload['total']}", ln=True)
-    pdf.ln(2)
+    with _SESSION_LOCK:
+        current = _REPORT_SESSIONS.get(session_id)
+        if not current:
+            return None
+        if not current["html_cache"]:
+            current["html_cache"] = html_content
+        return current["html_cache"]
 
-    summary = session_payload.get("summary", {})
-    pdf.set_font("Helvetica", "B", 12)
-    pdf.cell(0, 8, "Severity Summary", ln=True)
-    pdf.set_font("Helvetica", "", 10)
-    for severity in ["Critical", "High", "Medium", "Low"]:
-        pdf.cell(0, 6, f"- {severity}: {summary.get(severity, 0)}", ln=True)
 
-    pdf.ln(3)
-    pdf.set_font("Helvetica", "B", 12)
-    pdf.cell(0, 8, "Findings", ln=True)
+def prime_report_pdf_cache(session_id: str):
+    now = time.time()
+    with _SESSION_LOCK:
+        payload = _REPORT_SESSIONS.get(session_id)
+        if not payload:
+            return
 
-    for idx, vuln in enumerate(session_payload.get("vulns", []), start=1):
-        if pdf.get_y() > 265:
-            pdf.add_page()
+        if payload["pdf_status"] == "ready" and payload["pdf_cache"]:
+            return
 
-        title = safe_text(vuln.get("title") or "Untitled finding")
-        severity = safe_text(vuln.get("severity") or "Low")
-        tool = safe_text(vuln.get("tool") or "Unknown")
-        owasp = safe_text(vuln.get("owasp") or "Unknown")
-        description = safe_text(vuln.get("description") or "No description provided.")
-        fix = safe_text(vuln.get("fix") or "No fix provided.")
+        if payload["pdf_status"] == "processing":
+            started_at = payload.get("pdf_started_at")
+            if started_at and now - started_at <= PDF_GENERATION_TIMEOUT_SECONDS:
+                return
 
-        pdf.set_font("Helvetica", "B", 11)
-        write_block(f"{idx}. {title}", 7)
-        pdf.set_font("Helvetica", "", 10)
-        write_block(f"Severity: {severity} | Tool: {tool} | OWASP: {owasp}")
-        write_block(f"Description: {description}")
-        write_block(f"Fix: {fix}")
-        pdf.ln(2)
+        payload["pdf_status"] = "processing"
+        payload["pdf_error"] = None
+        payload["pdf_started_at"] = now
 
-    raw_pdf = pdf.output(dest="S")
-    if isinstance(raw_pdf, str):
-        return raw_pdf.encode("latin-1", "replace")
-    return bytes(raw_pdf)
+    try:
+        payload = get_report_session(session_id)
+        if not payload:
+            raise RuntimeError("Report session not found or expired.")
+
+        pdf_html_content = render_report_pdf_html(payload)
+        pdf_bytes = HTML(string=pdf_html_content).write_pdf()
+    except Exception as exc:
+        with _SESSION_LOCK:
+            payload = _REPORT_SESSIONS.get(session_id)
+            if not payload:
+                return
+            payload["pdf_status"] = "failed"
+            payload["pdf_error"] = str(exc)
+            payload["pdf_started_at"] = None
+            payload["pdf_updated_at"] = time.time()
+        return
+
+    with _SESSION_LOCK:
+        payload = _REPORT_SESSIONS.get(session_id)
+        if not payload:
+            return
+        payload["pdf_cache"] = pdf_bytes
+        payload["pdf_status"] = "ready"
+        payload["pdf_error"] = None
+        payload["pdf_started_at"] = None
+        payload["pdf_updated_at"] = time.time()
+
+
+def get_report_pdf_status(session_id: str):
+    now = time.time()
+    with _SESSION_LOCK:
+        _prune_sessions(now)
+        payload = _REPORT_SESSIONS.get(session_id)
+        if not payload:
+            return None
+
+        if payload["pdf_status"] == "processing":
+            started_at = payload.get("pdf_started_at")
+            if started_at and now - started_at > PDF_GENERATION_TIMEOUT_SECONDS:
+                payload["pdf_status"] = "failed"
+                payload["pdf_error"] = "PDF generation timed out. Please retry download."
+                payload["pdf_started_at"] = None
+                payload["pdf_updated_at"] = now
+
+        return {
+            "status": payload["pdf_status"],
+            "ready": payload["pdf_status"] == "ready" and payload["pdf_cache"] is not None,
+            "error": payload["pdf_error"],
+        }
+
+
+def get_cached_report_pdf(session_id: str):
+    now = time.time()
+    with _SESSION_LOCK:
+        _prune_sessions(now)
+        payload = _REPORT_SESSIONS.get(session_id)
+        if not payload:
+            return None
+        return payload["pdf_cache"]
+
+
+def get_or_render_report_html(session_id: str):
+    now = time.time()
+    with _SESSION_LOCK:
+        _prune_sessions(now)
+        payload = _REPORT_SESSIONS.get(session_id)
+        if not payload:
+            return None
+        cached = payload.get("html_cache")
+
+    if cached:
+        return cached
+
+    return _get_or_build_html_cache(session_id)

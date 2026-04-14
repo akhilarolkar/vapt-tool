@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>VAPT Report</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 16mm;
+        }
+
+        :root {
+            --ink: #0f1220;
+            --ink-soft: #3d4556;
+            --ink-faint: #6b7a8f;
+            --border: #d6e0ec;
+            --border-light: #e8eef7;
+            --surface: #ffffff;
+            --surface-alt: #f8fafb;
+            --brand: #0f4c81;
+            --brand-strong: #062e4f;
+            --critical: #7a1427;
+            --critical-light: #ffe8eb;
+            --high: #b14f1c;
+            --high-light: #fff5ea;
+            --medium: #1f5e9b;
+            --medium-light: #f0f8ff;
+            --low: #1e7a57;
+            --low-light: #f0fcf7;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+            color: var(--ink);
+            font-size: 12px;
+            line-height: 1.6;
+            background: #ffffff;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, rgba(6, 46, 79, 0.98), rgba(15, 76, 129, 0.95));
+            color: #f6fbff;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+            page-break-inside: avoid;
+        }
+
+        .hero h1 {
+            margin: 0 0 12px;
+            font-size: 32px;
+            font-weight: 800;
+            line-height: 1.2;
+            letter-spacing: -0.04em;
+        }
+
+        .hero p {
+            margin: 0;
+            color: rgba(255, 255, 255, 0.88);
+            font-size: 13px;
+            line-height: 1.7;
+            max-width: 99%;
+        }
+
+        .meta-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .meta-card {
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            padding: 12px 14px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .meta-label {
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .meta-value {
+            margin-top: 6px;
+            font-size: 26px;
+            font-weight: 800;
+            line-height: 1;
+            letter-spacing: -0.03em;
+        }
+
+        .section {
+            border: 1px solid var(--border-light);
+            border-radius: 14px;
+            background: linear-gradient(180deg, var(--surface), var(--surface-alt));
+            padding: 18px;
+            margin-bottom: 14px;
+            page-break-inside: avoid;
+        }
+
+        .section h2 {
+            margin: 0 0 6px;
+            font-size: 18px;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            color: var(--ink);
+        }
+
+        .section p {
+            margin: 0;
+            color: var(--ink-faint);
+            font-size: 12px;
+        }
+
+        .scan-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 14px;
+            border: 1px solid var(--border-light);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .scan-table th,
+        .scan-table td {
+            text-align: left;
+            border-bottom: 1px solid var(--border-light);
+            padding: 10px 12px;
+            font-size: 11px;
+        }
+
+        .scan-table th {
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--ink-faint);
+            background: linear-gradient(180deg, #f7faff, #ffffff);
+            font-size: 10px;
+            font-weight: 800;
+        }
+
+        .scan-table tr:last-child td {
+            border-bottom: none;
+            font-weight: 800;
+            background: var(--surface-alt);
+        }
+
+        .summary-grid {
+            margin-top: 14px;
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .summary-card {
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
+            padding: 14px;
+            background: linear-gradient(180deg, var(--surface), var(--surface-alt));
+            page-break-inside: avoid;
+        }
+
+        .summary-label {
+            font-size: 10px;
+            color: var(--ink-faint);
+            text-transform: uppercase;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+        }
+
+        .summary-value {
+            margin-top: 8px;
+            font-size: 30px;
+            font-weight: 800;
+            line-height: 1;
+            letter-spacing: -0.04em;
+        }
+
+        .summary-card.critical {
+            border-left: 4px solid var(--critical);
+            background: linear-gradient(180deg, #ffffff, rgba(122, 20, 39, 0.03));
+        }
+
+        .summary-card.high {
+            border-left: 4px solid var(--high);
+            background: linear-gradient(180deg, #ffffff, rgba(177, 79, 28, 0.03));
+        }
+
+        .summary-card.medium {
+            border-left: 4px solid var(--medium);
+            background: linear-gradient(180deg, #ffffff, rgba(31, 94, 155, 0.03));
+        }
+
+        .summary-card.low {
+            border-left: 4px solid var(--low);
+            background: linear-gradient(180deg, #ffffff, rgba(30, 122, 87, 0.03));
+        }
+
+        .finding {
+            border: 1px solid var(--border-light);
+            border-radius: 10px;
+            background: linear-gradient(90deg, #ffffff, var(--surface-alt));
+            padding: 12px;
+            margin-bottom: 10px;
+            page-break-inside: avoid;
+            break-inside: avoid;
+            border-left: 3px solid var(--border);
+        }
+
+        .finding[data-severity="Critical"] {
+            border-left-color: var(--critical);
+            background: linear-gradient(90deg, rgba(122, 20, 39, 0.02), transparent);
+        }
+
+        .finding[data-severity="High"] {
+            border-left-color: var(--high);
+            background: linear-gradient(90deg, rgba(177, 79, 28, 0.02), transparent);
+        }
+
+        .finding[data-severity="Medium"] {
+            border-left-color: var(--medium);
+            background: linear-gradient(90deg, rgba(31, 94, 155, 0.02), transparent);
+        }
+
+        .finding[data-severity="Low"] {
+            border-left-color: var(--low);
+            background: linear-gradient(90deg, rgba(30, 122, 87, 0.02), transparent);
+        }
+
+        .group {
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
+            background: linear-gradient(180deg, var(--surface), var(--surface-alt));
+            padding: 14px;
+            margin-top: 12px;
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+
+        .group h3 {
+            margin: 0 0 6px;
+            font-size: 16px;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            color: var(--brand-strong);
+        }
+
+        .group-meta {
+            margin: 8px 0 10px;
+            color: var(--ink-faint);
+            font-size: 11px;
+        }
+
+        .finding h3 {
+            margin: 0 0 10px;
+            font-size: 14px;
+            font-weight: 800;
+            line-height: 1.4;
+            letter-spacing: -0.02em;
+            color: var(--ink);
+        }
+
+        .meta-row {
+            margin-bottom: 10px;
+            color: var(--ink-soft);
+            font-size: 11px;
+        }
+
+        .meta-row span {
+            display: inline-block;
+            background: #f0f6ff;
+            padding: 4px 8px;
+            border-radius: 4px;
+            margin-right: 6px;
+            margin-bottom: 4px;
+        }
+
+        .meta-row span + span::before {
+            content: none;
+        }
+
+        .block {
+            margin-top: 8px;
+        }
+
+        .label {
+            color: var(--ink-faint);
+            font-weight: 800;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .value {
+            color: var(--ink);
+            margin-top: 4px;
+            display: block;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <section class="hero">
+        <h1>Consolidated VAPT Findings</h1>
+        <p>
+            This report combines uploaded scanner outputs into a single review-ready document with normalized
+            severity levels, tool attribution, and OWASP mapping where available.
+        </p>
+        <div class="meta-grid">
+            <article class="meta-card">
+                <div class="meta-label">Total findings</div>
+                <div class="meta-value">{{ total }}</div>
+            </article>
+            <article class="meta-card">
+                <div class="meta-label">Report type</div>
+                <div class="meta-value" style="font-size: 16px; margin-top: 8px;">HTML + PDF</div>
+            </article>
+            <article class="meta-card">
+                <div class="meta-label">Coverage</div>
+                <div class="meta-value" style="font-size: 16px; margin-top: 8px;">Multi-tool ingestion</div>
+            </article>
+        </div>
+    </section>
+
+    <section class="section">
+        <h2>Severity Summary</h2>
+        <p>High-level distribution of normalized findings across all uploaded reports.</p>
+        <div class="summary-grid">
+            {% for severity in ["Critical", "High", "Medium", "Low"] %}
+            <article class="summary-card {{ severity | lower }}">
+                <div class="summary-label">{{ severity }}</div>
+                <div class="summary-value">{{ summary.get(severity, 0) }}</div>
+            </article>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section class="section">
+        <h2>Scan Summary</h2>
+        <p>Breakdown by scan category for quick source-level understanding.</p>
+
+        <table class="scan-table">
+            <thead>
+                <tr>
+                    <th>Scan Type</th>
+                    {% for severity in severity_order %}
+                    <th>{{ severity }}</th>
+                    {% endfor %}
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in scan_summary %}
+                <tr>
+                    <td>{{ row.scan_type }}</td>
+                    {% for severity in severity_order %}
+                    <td>{{ row.summary.get(severity, 0) }}</td>
+                    {% endfor %}
+                    <td>{{ row.total }}</td>
+                </tr>
+                {% endfor %}
+                <tr>
+                    <td>{{ grand_total.scan_type }}</td>
+                    {% for severity in severity_order %}
+                    <td>{{ grand_total.summary.get(severity, 0) }}</td>
+                    {% endfor %}
+                    <td>{{ grand_total.total }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <section class="section">
+        <h2>Detailed Findings by Uploaded Report</h2>
+        <p>Findings are grouped by source file for easy review of each report.</p>
+
+        {% for group in grouped_reports %}
+        <article class="group">
+            <h3>{{ group.source_file }}</h3>
+            <div class="group-meta">
+                Scan Type: {{ group.scan_type }} | Tool: {{ group.tool }} | Findings: {{ group.total }}
+            </div>
+
+            {% for finding in group.findings %}
+            <article class="finding">
+                <h3>{{ finding.title or "Untitled finding" }}</h3>
+                <div class="meta-row">
+                    <span>Severity: {{ finding.severity or "Low" }}</span>
+                    <span>Tool: {{ finding.tool or "Unknown" }}</span>
+                    <span>OWASP: {{ finding.owasp or "Unknown" }}</span>
+                </div>
+                <div class="block">
+                    <span class="label">Description:</span>
+                    <span class="value">{{ finding.description or "No description provided." }}</span>
+                </div>
+                <div class="block">
+                    <span class="label">Remediation:</span>
+                    <span class="value">{{ finding.fix or "No remediation guidance provided." }}</span>
+                </div>
+            </article>
+            {% endfor %}
+        </article>
+        {% endfor %}
+    </section>
+</body>
+</html>
