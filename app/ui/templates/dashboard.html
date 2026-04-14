@@ -1,0 +1,1053 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VAPT Report Generator</title>
+    <style>
+        :root {
+            color-scheme: light;
+            --bg: #f4f7fb;
+            --surface: rgba(255, 255, 255, 0.9);
+            --surface-strong: #ffffff;
+            --surface-muted: #eef3f9;
+            --ink: #152033;
+            --ink-soft: #4d5b74;
+            --ink-faint: #73819a;
+            --border: rgba(21, 32, 51, 0.1);
+            --shadow: 0 20px 45px rgba(18, 34, 60, 0.12);
+            --shadow-soft: 0 10px 25px rgba(18, 34, 60, 0.08);
+            --brand: #0f4c81;
+            --brand-strong: #09345a;
+            --brand-accent: #1f8ceb;
+            --success: #17795d;
+            --success-bg: #eaf7f1;
+            --warning: #a76514;
+            --warning-bg: #fff4e4;
+            --danger: #b63b3b;
+            --danger-bg: #fff0f0;
+            --critical: #7a1427;
+            --critical-bg: #fdecef;
+            --high: #b14f1c;
+            --high-bg: #fff0e7;
+            --medium: #1f5e9b;
+            --medium-bg: #e9f3ff;
+            --low: #1e7a57;
+            --low-bg: #eaf8f1;
+            --radius-xl: 28px;
+            --radius-lg: 20px;
+            --radius-md: 14px;
+            --radius-sm: 10px;
+            --mono: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+            --sans: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            margin: 0;
+            font-family: var(--sans);
+            color: var(--ink);
+            background:
+                radial-gradient(circle at top left, rgba(31, 140, 235, 0.16), transparent 34%),
+                radial-gradient(circle at top right, rgba(15, 76, 129, 0.12), transparent 28%),
+                linear-gradient(180deg, #f8fbff 0%, var(--bg) 56%, #edf2f8 100%);
+            min-height: 100vh;
+        }
+
+        a {
+            color: inherit;
+        }
+
+        .page-shell {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 40px 24px 56px;
+        }
+
+        .hero {
+            position: relative;
+            overflow: hidden;
+            background:
+                linear-gradient(135deg, rgba(9, 52, 90, 0.96), rgba(15, 76, 129, 0.92)),
+                linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0));
+            border-radius: var(--radius-xl);
+            color: #f6fbff;
+            padding: 34px;
+            box-shadow: var(--shadow);
+        }
+
+        .hero::before,
+        .hero::after {
+            content: "";
+            position: absolute;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.08);
+            pointer-events: none;
+        }
+
+        .hero::before {
+            width: 240px;
+            height: 240px;
+            right: -70px;
+            top: -90px;
+        }
+
+        .hero::after {
+            width: 190px;
+            height: 190px;
+            right: 160px;
+            bottom: -110px;
+        }
+
+        .hero-grid {
+            position: relative;
+            display: grid;
+            gap: 28px;
+            grid-template-columns: minmax(0, 1.25fr) minmax(320px, 0.75fr);
+            align-items: center;
+            z-index: 1;
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            border-radius: 999px;
+            font-size: 0.84rem;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            background: rgba(255, 255, 255, 0.12);
+            color: rgba(255, 255, 255, 0.92);
+        }
+
+        h1 {
+            margin: 16px 0 14px;
+            font-size: clamp(2rem, 5vw, 3.8rem);
+            line-height: 0.98;
+            letter-spacing: -0.03em;
+        }
+
+        .hero p {
+            max-width: 760px;
+            margin: 0;
+            color: rgba(246, 251, 255, 0.82);
+            font-size: 1.03rem;
+            line-height: 1.7;
+        }
+
+        .hero-points {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .hero-point {
+            padding: 10px 14px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.92);
+            font-size: 0.95rem;
+        }
+
+        .hero-card {
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            border-radius: var(--radius-lg);
+            padding: 22px;
+            backdrop-filter: blur(8px);
+        }
+
+        .hero-card h2,
+        .section-title {
+            margin: 0 0 8px;
+            font-size: 1.15rem;
+            letter-spacing: -0.02em;
+        }
+
+        .hero-card p,
+        .section-lead {
+            margin: 0;
+            color: var(--ink-soft);
+            line-height: 1.65;
+        }
+
+        .hero-card p {
+            color: rgba(246, 251, 255, 0.84);
+        }
+
+        .hero-stats {
+            display: grid;
+            gap: 12px;
+            margin-top: 18px;
+        }
+
+        .hero-stat {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 12px 14px;
+            border-radius: var(--radius-md);
+            background: rgba(255, 255, 255, 0.08);
+            color: rgba(255, 255, 255, 0.92);
+        }
+
+        .hero-stat strong {
+            font-size: 1.1rem;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: minmax(0, 1.05fr) minmax(300px, 0.95fr);
+            gap: 24px;
+            margin-top: 24px;
+        }
+
+        .stack {
+            display: grid;
+            gap: 24px;
+        }
+
+        .panel {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            box-shadow: var(--shadow-soft);
+            backdrop-filter: blur(10px);
+        }
+
+        .upload-card {
+            background:
+                linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 251, 255, 0.95)),
+                var(--surface);
+        }
+
+        .form-grid {
+            display: grid;
+            gap: 18px;
+            margin-top: 22px;
+        }
+
+        .upload-zone {
+            position: relative;
+            padding: 24px;
+            border: 1.5px dashed rgba(15, 76, 129, 0.28);
+            border-radius: var(--radius-lg);
+            background: linear-gradient(180deg, rgba(15, 76, 129, 0.04), rgba(31, 140, 235, 0.02));
+        }
+
+        .upload-zone label {
+            display: block;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .upload-zone small,
+        .meta-text {
+            display: block;
+            color: var(--ink-soft);
+            line-height: 1.6;
+        }
+
+        input[type="file"] {
+            width: 100%;
+            margin-top: 16px;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            background: var(--surface-strong);
+            color: var(--ink);
+            font: inherit;
+        }
+
+        .action-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .selected-files {
+            margin: 10px 0 0;
+            color: var(--ink-faint);
+            font-size: 0.92rem;
+        }
+
+        .button,
+        button {
+            appearance: none;
+            border: none;
+            border-radius: 999px;
+            background: linear-gradient(135deg, var(--brand), var(--brand-accent));
+            color: #ffffff;
+            padding: 13px 18px;
+            font: inherit;
+            font-weight: 700;
+            text-decoration: none;
+            cursor: pointer;
+            box-shadow: 0 10px 24px rgba(15, 76, 129, 0.2);
+            transition: transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease;
+        }
+
+        .button:hover,
+        button:hover,
+        .button:focus-visible,
+        button:focus-visible {
+            transform: translateY(-1px);
+            box-shadow: 0 14px 28px rgba(15, 76, 129, 0.24);
+            outline: none;
+        }
+
+        .button.secondary {
+            background: transparent;
+            color: var(--brand);
+            border: 1px solid rgba(15, 76, 129, 0.18);
+            box-shadow: none;
+        }
+
+        .button.secondary:hover,
+        .button.secondary:focus-visible {
+            box-shadow: none;
+            background: rgba(15, 76, 129, 0.05);
+        }
+
+        .submit-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .submit-button[disabled] {
+            cursor: wait;
+            opacity: 0.72;
+            transform: none;
+            box-shadow: 0 10px 24px rgba(15, 76, 129, 0.14);
+        }
+
+        .button-spinner {
+            width: 16px;
+            height: 16px;
+            border-radius: 999px;
+            border: 2px solid rgba(255, 255, 255, 0.35);
+            border-top-color: #ffffff;
+            animation: spin 0.9s linear infinite;
+            display: none;
+        }
+
+        .submit-button.is-loading .button-spinner {
+            display: inline-block;
+        }
+
+        .submit-button.is-loading .button-label {
+            opacity: 0.92;
+        }
+
+        .loading-overlay {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            background: rgba(9, 23, 41, 0.48);
+            backdrop-filter: blur(8px);
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition: opacity 0.18s ease, visibility 0.18s ease;
+            z-index: 1000;
+        }
+
+        body.is-submitting .loading-overlay {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+        }
+
+        .loading-card {
+            width: min(100%, 460px);
+            padding: 28px;
+            border-radius: var(--radius-lg);
+            background: rgba(255, 255, 255, 0.96);
+            border: 1px solid rgba(255, 255, 255, 0.55);
+            box-shadow: var(--shadow);
+            text-align: center;
+        }
+
+        .loading-card h3 {
+            margin: 16px 0 8px;
+            font-size: 1.2rem;
+            letter-spacing: -0.02em;
+        }
+
+        .loading-card p {
+            margin: 0;
+            color: var(--ink-soft);
+            line-height: 1.65;
+        }
+
+        .loading-spinner {
+            width: 52px;
+            height: 52px;
+            margin: 0 auto;
+            border-radius: 50%;
+            border: 4px solid rgba(15, 76, 129, 0.14);
+            border-top-color: var(--brand-accent);
+            animation: spin 0.85s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .supported-grid,
+        .command-grid,
+        .summary-grid,
+        .result-grid,
+        .preview-grid {
+            display: grid;
+            gap: 16px;
+        }
+
+        .supported-grid,
+        .command-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .summary-grid {
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+
+        .result-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .tool-card,
+        .command-card,
+        .summary-card,
+        .result-card,
+        .finding-card {
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
+            background: var(--surface-strong);
+            padding: 18px;
+        }
+
+        .tool-card {
+            background: linear-gradient(180deg, #ffffff, #f9fbfe);
+        }
+
+        .tool-card h3,
+        .command-card h3,
+        .summary-card h3,
+        .result-card h3,
+        .finding-card h3 {
+            margin: 0 0 8px;
+            font-size: 1rem;
+            letter-spacing: -0.02em;
+        }
+
+        .tool-card p,
+        .command-card p,
+        .result-card p,
+        .finding-card p {
+            margin: 0;
+            color: var(--ink-soft);
+            line-height: 1.65;
+        }
+
+        .tool-meta {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 10px;
+            margin-bottom: 12px;
+            border-radius: 999px;
+            background: rgba(15, 76, 129, 0.08);
+            color: var(--brand);
+            font-size: 0.82rem;
+            font-weight: 700;
+        }
+
+        .command-card {
+            background:
+                linear-gradient(180deg, rgba(9, 52, 90, 0.03), rgba(15, 76, 129, 0.01)),
+                #ffffff;
+        }
+
+        .command-label {
+            display: inline-flex;
+            margin-bottom: 10px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            color: var(--ink-faint);
+        }
+
+        pre {
+            margin: 12px 0 0;
+            padding: 14px;
+            background: #0d1a2b;
+            color: #f3f8ff;
+            border-radius: var(--radius-sm);
+            overflow-x: auto;
+            font-family: var(--mono);
+            font-size: 0.9rem;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        code {
+            font-family: var(--mono);
+        }
+
+        .alert {
+            display: grid;
+            gap: 10px;
+            padding: 16px 18px;
+            border-radius: var(--radius-md);
+            border: 1px solid transparent;
+        }
+
+        .alert strong {
+            font-size: 0.98rem;
+        }
+
+        .alert ul {
+            margin: 0;
+            padding-left: 18px;
+            color: inherit;
+        }
+
+        .alert.error {
+            background: var(--danger-bg);
+            border-color: rgba(182, 59, 59, 0.18);
+            color: #7f2f2f;
+        }
+
+        .alert.info {
+            background: #edf5ff;
+            border-color: rgba(31, 94, 155, 0.16);
+            color: #1b4d7f;
+        }
+
+        .summary-card {
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(180deg, #ffffff, #f9fbfd);
+        }
+
+        .summary-card::after {
+            content: "";
+            position: absolute;
+            inset: auto 0 0 0;
+            height: 4px;
+            background: rgba(15, 76, 129, 0.12);
+        }
+
+        .summary-card .summary-label {
+            color: var(--ink-faint);
+            font-size: 0.84rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .summary-card .summary-value {
+            margin-top: 10px;
+            font-size: 2rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+        }
+
+        .summary-card.critical::after {
+            background: var(--critical);
+        }
+
+        .summary-card.high::after {
+            background: var(--high);
+        }
+
+        .summary-card.medium::after {
+            background: var(--medium);
+        }
+
+        .summary-card.low::after {
+            background: var(--low);
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 10px;
+            border-radius: 999px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+        }
+
+        .badge.Critical {
+            color: var(--critical);
+            background: var(--critical-bg);
+        }
+
+        .badge.High {
+            color: var(--high);
+            background: var(--high-bg);
+        }
+
+        .badge.Medium {
+            color: var(--medium);
+            background: var(--medium-bg);
+        }
+
+        .badge.Low {
+            color: var(--low);
+            background: var(--low-bg);
+        }
+
+        .inline-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 12px 0 14px;
+        }
+
+        .inline-meta span {
+            color: var(--ink-faint);
+            font-size: 0.88rem;
+        }
+
+        .list-clean {
+            margin: 12px 0 0;
+            padding-left: 18px;
+            color: var(--ink-soft);
+        }
+
+        .list-clean li + li {
+            margin-top: 8px;
+        }
+
+        .finding-card {
+            background: linear-gradient(180deg, #ffffff, #fafcff);
+        }
+
+        .finding-copy {
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .section-head {
+            display: flex;
+            justify-content: space-between;
+            gap: 18px;
+            align-items: end;
+            margin-bottom: 18px;
+        }
+
+        .section-head p {
+            max-width: 720px;
+        }
+
+        .muted {
+            color: var(--ink-faint);
+        }
+
+        .kicker {
+            margin: 0 0 6px;
+            font-size: 0.8rem;
+            font-weight: 800;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            color: var(--brand);
+        }
+
+        @media (max-width: 1060px) {
+            .hero-grid,
+            .layout,
+            .supported-grid,
+            .command-grid,
+            .summary-grid,
+            .result-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 720px) {
+            .page-shell {
+                padding: 20px 16px 40px;
+            }
+
+            .hero,
+            .panel {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 2.4rem;
+            }
+
+            .section-head {
+                align-items: start;
+                flex-direction: column;
+            }
+
+            .action-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .button,
+            button {
+                text-align: center;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    {% set has_results = total is defined and total %}
+    {% set has_errors = errors is defined and errors %}
+    {% set summary_data = summary if summary is defined else {} %}
+    {% set findings = vulns if vulns is defined else [] %}
+    {% set uploaded = uploaded_files if uploaded_files is defined else [] %}
+
+    <div class="page-shell">
+        <section class="hero">
+            <div class="hero-grid">
+                <div>
+                    <span class="eyebrow">Security Reporting Workspace</span>
+                    <h1>Turn raw scanner JSON into polished VAPT reports.</h1>
+                    <p>
+                        Upload one or more JSON outputs from Trivy, Trivy image scans, Bandit, or ZAP.
+                        The platform consolidates findings, normalizes severities, maps OWASP tags, and
+                        generates a ready-to-share HTML and PDF report.
+                    </p>
+                    <div class="hero-points">
+                        <span class="hero-point">Multi-file upload</span>
+                        <span class="hero-point">Consolidated summary</span>
+                        <span class="hero-point">HTML + PDF output</span>
+                    </div>
+                </div>
+
+                <aside class="hero-card">
+                    <h2>What this dashboard expects</h2>
+                    <p>
+                        Upload JSON only. You can mix supported tools in a single submission, and valid
+                        files will still be processed even if some uploads fail validation.
+                    </p>
+                    <div class="hero-stats">
+                        <div class="hero-stat">
+                            <span>Accepted formats</span>
+                            <strong>Trivy, ZAP, Bandit</strong>
+                        </div>
+                        <div class="hero-stat">
+                            <span>Recommended workflow</span>
+                            <strong>Generate JSON, then upload</strong>
+                        </div>
+                        <div class="hero-stat">
+                            <span>Report outputs</span>
+                            <strong>Interactive HTML and PDF</strong>
+                        </div>
+                    </div>
+                </aside>
+            </div>
+        </section>
+
+        <div class="layout">
+            <div class="stack">
+                <section class="panel upload-card">
+                    <p class="kicker">Upload Reports</p>
+                    <div class="section-head">
+                        <div>
+                            <h2 class="section-title">Submit one or more scanner outputs</h2>
+                            <p class="section-lead">
+                                Use this when your JSON files are ready. The dashboard will merge findings across
+                                uploaded reports and produce a single VAPT package.
+                            </p>
+                        </div>
+                    </div>
+
+                    <form class="form-grid" method="post" action="/upload-ui" enctype="multipart/form-data" data-upload-form>
+                        <div class="upload-zone">
+                            <label for="files">Select JSON report files</label>
+                            <small>
+                                Accepted extensions: <code>.json</code>. Upload multiple files together to create
+                                one combined report with normalized severity data.
+                            </small>
+                            <input id="files" name="files" type="file" accept=".json,application/json" multiple required>
+                            <p class="selected-files" id="selected-files-status">No files selected yet.</p>
+                        </div>
+
+                        <div class="action-row">
+                            <button class="submit-button" type="submit" data-submit-button>
+                                <span class="button-spinner" aria-hidden="true"></span>
+                                <span class="button-label">Generate consolidated report</span>
+                            </button>
+                            <a class="button secondary" href="#commands">Need help generating JSON?</a>
+                        </div>
+                    </form>
+                </section>
+
+                {% if has_results %}
+                <section class="panel">
+                    <p class="kicker">Report Outcome</p>
+                    <div class="section-head">
+                        <div>
+                            <h2 class="section-title">Your consolidated report is ready</h2>
+                            <p class="section-lead">
+                                Review the severity distribution below, then open the generated report artifacts
+                                for full finding details and export-ready sharing.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="summary-grid">
+                        {% for severity in ["Critical", "High", "Medium", "Low"] %}
+                        <article class="summary-card {{ severity | lower }}">
+                            <div class="summary-label">{{ severity }}</div>
+                            <div class="summary-value">{{ summary_data.get(severity, 0) }}</div>
+                        </article>
+                        {% endfor %}
+                    </div>
+
+                    <div class="result-grid" style="margin-top: 18px;">
+                        <article class="result-card">
+                            <h3>Total findings</h3>
+                            <p class="meta-text">Normalized findings included in this consolidated report package.</p>
+                            <div class="summary-value" style="margin-top: 14px;">{{ total }}</div>
+                        </article>
+
+                        <article class="result-card">
+                            <h3>Generated report files</h3>
+                            <p>Open the interactive HTML report or download the PDF for distribution.</p>
+                            <div class="action-row" style="margin-top: 16px;">
+                                {% if html is defined and html %}
+                                <a class="button" href="{{ html }}" target="_blank" rel="noopener noreferrer">Open HTML report</a>
+                                {% endif %}
+                                {% if pdf is defined and pdf %}
+                                <a class="button secondary" href="{{ pdf }}" target="_blank" rel="noopener noreferrer">Open PDF report</a>
+                                {% endif %}
+                            </div>
+                        </article>
+                    </div>
+                </section>
+                {% endif %}
+
+                {% if findings %}
+                <section class="panel">
+                    <div class="section-head">
+                        <div>
+                            <p class="kicker">Preview</p>
+                            <h2 class="section-title">Sample findings from this upload</h2>
+                            <p class="section-lead">
+                                This preview is intentionally short. Use the generated HTML or PDF report for the
+                                complete finding inventory and full remediation details.
+                            </p>
+                        </div>
+                        <p class="muted">Showing up to 5 findings</p>
+                    </div>
+
+                    <div class="preview-grid">
+                        {% for finding in findings[:5] %}
+                        <article class="finding-card">
+                            <h3>{{ finding.title or "Untitled finding" }}</h3>
+                            <div class="inline-meta">
+                                <span class="badge {{ finding.severity }}">{{ finding.severity or "Low" }}</span>
+                                <span>Tool: {{ finding.tool or "Unknown" }}</span>
+                                <span>OWASP: {{ finding.owasp or "Unknown" }}</span>
+                            </div>
+                            <p class="finding-copy">{{ finding.description or "No description provided." }}</p>
+                            {% if finding.fix %}
+                            <p class="finding-copy" style="margin-top: 10px;"><strong>Fix:</strong> {{ finding.fix }}</p>
+                            {% endif %}
+                        </article>
+                        {% endfor %}
+                    </div>
+                </section>
+                {% endif %}
+            </div>
+
+            <div class="stack">
+                {% if uploaded %}
+                <section class="panel">
+                    <p class="kicker">Processed Files</p>
+                    <h2 class="section-title">Accepted uploads</h2>
+                    <p class="section-lead">
+                        These files were successfully parsed and included in the final report.
+                    </p>
+                    <ul class="list-clean">
+                        {% for filename in uploaded %}
+                        <li><code>{{ filename }}</code></li>
+                        {% endfor %}
+                    </ul>
+                </section>
+                {% endif %}
+
+                {% if has_errors %}
+                <section class="panel">
+                    <div class="alert error">
+                        <strong>Some files need attention</strong>
+                        <ul>
+                            {% for error in errors %}
+                            <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </section>
+                {% endif %}
+
+                {% if not has_results and not has_errors %}
+                <section class="panel">
+                    <div class="alert info">
+                        <strong>Before you upload</strong>
+                        <ul>
+                            <li>Generate JSON from one or more supported scanners.</li>
+                            <li>Upload multiple files together if you want a single consolidated report.</li>
+                            <li>The resulting package includes normalized summary counts plus HTML and PDF outputs.</li>
+                        </ul>
+                    </div>
+                </section>
+                {% endif %}
+
+                <section class="panel">
+                    <p class="kicker">Supported Inputs</p>
+                    <h2 class="section-title">Scanner formats this dashboard accepts</h2>
+                    <p class="section-lead">
+                        The backend currently recognizes specific JSON shapes from these tools, so naming and export
+                        format matter more than the filename itself.
+                    </p>
+                    <div class="supported-grid" style="margin-top: 18px;">
+                        <article class="tool-card">
+                            <span class="tool-meta">Dependency / Filesystem</span>
+                            <h3>Trivy filesystem scan</h3>
+                            <p>Use this for repositories, file systems, and package vulnerability scanning.</p>
+                        </article>
+                        <article class="tool-card">
+                            <span class="tool-meta">Container</span>
+                            <h3>Trivy image scan</h3>
+                            <p>Use the same Trivy JSON structure for container images, registries, or local image tags.</p>
+                        </article>
+                        <article class="tool-card">
+                            <span class="tool-meta">Static Analysis</span>
+                            <h3>Bandit</h3>
+                            <p>Use Bandit JSON output for Python code security findings and code-level issues.</p>
+                        </article>
+                        <article class="tool-card">
+                            <span class="tool-meta">DAST Export</span>
+                            <h3>ZAP JSON export</h3>
+                            <p>Export the ZAP alert report as JSON, then upload that file directly here.</p>
+                        </article>
+                    </div>
+                </section>
+
+                <section class="panel" id="commands">
+                    <p class="kicker">Generate JSON First</p>
+                    <h2 class="section-title">Example commands and export guidance</h2>
+                    <p class="section-lead">
+                        Use these examples to produce upload-ready scanner outputs. Keep the JSON files, then upload
+                        them here to build the consolidated VAPT report.
+                    </p>
+
+                    <div class="command-grid" style="margin-top: 18px;">
+                        <article class="command-card">
+                            <span class="command-label">Trivy filesystem scan</span>
+                            <h3>Scan the current project directory</h3>
+                            <p>Best for dependency and filesystem findings from the working tree.</p>
+                            <pre><code>trivy fs --format json --output trivy-report.json .</code></pre>
+                        </article>
+
+                        <article class="command-card">
+                            <span class="command-label">Trivy image scan</span>
+                            <h3>Scan a container image</h3>
+                            <p>Use this when your security source is a built image instead of a local file tree.</p>
+                            <pre><code>trivy image --format json --output trivy-image-report.json &lt;image-name&gt;:&lt;tag&gt;</code></pre>
+                        </article>
+
+                        <article class="command-card">
+                            <span class="command-label">Bandit</span>
+                            <h3>Generate Python SAST output</h3>
+                            <p>Recursively scan the project and save findings in upload-ready JSON format.</p>
+                            <pre><code>bandit -r . -f json -o bandit-report.json</code></pre>
+                        </article>
+
+                        <article class="command-card">
+                            <span class="command-label">ZAP</span>
+                            <h3>Export an alert report as JSON</h3>
+                            <p>
+                                From the ZAP UI or your existing automation, export the alerts report in JSON format
+                                and upload that exported file here.
+                            </p>
+                            <pre><code>ZAP UI -> Report / Export -> JSON
+Save the file, then upload it in this dashboard.</code></pre>
+                        </article>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <div class="loading-overlay" aria-hidden="true" data-loading-overlay>
+        <div class="loading-card" role="status" aria-live="polite">
+            <div class="loading-spinner" aria-hidden="true"></div>
+            <h3>Building your consolidated report</h3>
+            <p>
+                Uploads are being validated, merged, and rendered into HTML and PDF. This can take a little longer
+                when several files are submitted together.
+            </p>
+        </div>
+    </div>
+
+    <script>
+        const uploadForm = document.querySelector("[data-upload-form]");
+        const fileInput = document.getElementById("files");
+        const selectedFilesStatus = document.getElementById("selected-files-status");
+        const submitButton = document.querySelector("[data-submit-button]");
+        const loadingOverlay = document.querySelector("[data-loading-overlay]");
+
+        if (fileInput && selectedFilesStatus) {
+            const renderSelectedFiles = () => {
+                const count = fileInput.files ? fileInput.files.length : 0;
+                if (count === 0) {
+                    selectedFilesStatus.textContent = "No files selected yet.";
+                    return;
+                }
+
+                if (count === 1) {
+                    selectedFilesStatus.textContent = fileInput.files[0].name;
+                    return;
+                }
+
+                selectedFilesStatus.textContent = count + " files selected and ready to upload.";
+            };
+
+            renderSelectedFiles();
+            fileInput.addEventListener("change", renderSelectedFiles);
+        }
+
+        if (uploadForm && submitButton && loadingOverlay) {
+            uploadForm.addEventListener("submit", () => {
+                document.body.classList.add("is-submitting");
+                submitButton.disabled = true;
+                submitButton.classList.add("is-loading");
+                loadingOverlay.setAttribute("aria-hidden", "false");
+            });
+        }
+    </script>
+</body>
+</html>

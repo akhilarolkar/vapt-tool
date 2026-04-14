@@ -1,0 +1,3624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VAPT Report</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 18mm;
+        }
+
+        :root {
+            --bg: #f4f7fb;
+            --surface: #ffffff;
+            --surface-alt: #f7fafe;
+            --ink: #152033;
+            --ink-soft: #53627a;
+            --ink-faint: #73819a;
+            --border: #dbe4ef;
+            --brand: #0f4c81;
+            --brand-strong: #09345a;
+            --critical: #7a1427;
+            --critical-bg: #fdecef;
+            --high: #b14f1c;
+            --high-bg: #fff0e7;
+            --medium: #1f5e9b;
+            --medium-bg: #e9f3ff;
+            --low: #1e7a57;
+            --low-bg: #eaf8f1;
+            --radius-lg: 22px;
+            --radius-md: 16px;
+            --radius-sm: 10px;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+            color: var(--ink);
+            background:
+                radial-gradient(circle at top left, rgba(31, 140, 235, 0.10), transparent 32%),
+                linear-gradient(180deg, #f8fbff 0%, var(--bg) 100%);
+            font-size: 13px;
+            line-height: 1.55;
+        }
+
+        .page {
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: 28px;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, rgba(9, 52, 90, 0.98), rgba(15, 76, 129, 0.95));
+            color: #f6fbff;
+            border-radius: var(--radius-lg);
+            padding: 28px;
+            margin-bottom: 22px;
+        }
+
+        .eyebrow {
+            display: inline-block;
+            padding: 7px 11px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.12);
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .hero h1 {
+            margin: 14px 0 10px;
+            font-size: 32px;
+            line-height: 1.05;
+            letter-spacing: -0.03em;
+        }
+
+        .hero p {
+            margin: 0;
+            max-width: 760px;
+            color: rgba(246, 251, 255, 0.82);
+            font-size: 14px;
+        }
+
+        .hero-meta {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .meta-card {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: var(--radius-md);
+            padding: 14px;
+        }
+
+        .meta-label {
+            color: rgba(255, 255, 255, 0.72);
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .meta-value {
+            margin-top: 8px;
+            font-size: 20px;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+        }
+
+        .section {
+            background: rgba(255, 255, 255, 0.92);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 22px;
+            margin-bottom: 18px;
+        }
+
+        .section h2 {
+            margin: 0 0 8px;
+            font-size: 19px;
+            letter-spacing: -0.02em;
+        }
+
+        .section p.lead {
+            margin: 0;
+            color: var(--ink-soft);
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 14px;
+            margin-top: 18px;
+        }
+
+        .summary-card {
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            background: linear-gradient(180deg, #ffffff, var(--surface-alt));
+            padding: 16px;
+        }
+
+        .summary-label {
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            color: var(--ink-faint);
+        }
+
+        .summary-value {
+            margin-top: 10px;
+            font-size: 30px;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+        }
+
+        .summary-card.critical {
+            border-top: 4px solid var(--critical);
+        }
+
+        .summary-card.high {
+            border-top: 4px solid var(--high);
+        }
+
+        .summary-card.medium {
+            border-top: 4px solid var(--medium);
+        }
+
+        .summary-card.low {
+            border-top: 4px solid var(--low);
+        }
+
+        .findings {
+            display: grid;
+            gap: 16px;
+            margin-top: 18px;
+        }
+
+        .finding-card {
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            background: linear-gradient(180deg, #ffffff, #fbfdff);
+            padding: 18px;
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+
+        .finding-card h3 {
+            margin: 0 0 12px;
+            font-size: 18px;
+            letter-spacing: -0.02em;
+        }
+
+        .finding-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+
+        .badge,
+        .pill {
+            display: inline-block;
+            border-radius: 999px;
+            padding: 6px 10px;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.03em;
+        }
+
+        .pill {
+            background: #edf3fb;
+            color: var(--brand-strong);
+        }
+
+        .badge.Critical {
+            color: var(--critical);
+            background: var(--critical-bg);
+        }
+
+        .badge.High {
+            color: var(--high);
+            background: var(--high-bg);
+        }
+
+        .badge.Medium {
+            color: var(--medium);
+            background: var(--medium-bg);
+        }
+
+        .badge.Low {
+            color: var(--low);
+            background: var(--low-bg);
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: 180px minmax(0, 1fr);
+            gap: 10px 16px;
+            align-items: start;
+        }
+
+        .detail-label {
+            color: var(--ink-faint);
+            font-weight: 700;
+        }
+
+        .detail-value {
+            color: var(--ink);
+            word-break: break-word;
+        }
+
+        .detail-value.muted {
+            color: var(--ink-soft);
+        }
+
+        @media print {
+            body {
+                background: #ffffff;
+            }
+
+            .page {
+                max-width: none;
+                margin: 0;
+                padding: 0;
+            }
+
+            .hero,
+            .section,
+            .finding-card,
+            .summary-card {
+                box-shadow: none;
+            }
+        }
+
+        @media (max-width: 900px) {
+            .hero-meta,
+            .summary-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 640px) {
+            .page {
+                padding: 14px;
+            }
+
+            .hero,
+            .section {
+                padding: 18px;
+            }
+
+            .hero-meta,
+            .summary-grid,
+            .detail-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <section class="hero">
+            <span class="eyebrow">Executive Security Report</span>
+            <h1>Consolidated VAPT Findings</h1>
+            <p>
+                This report combines uploaded scanner outputs into a single review-ready document with
+                normalized severity levels, tool attribution, and OWASP mapping where available.
+            </p>
+
+            <div class="hero-meta">
+                <div class="meta-card">
+                    <div class="meta-label">Total Findings</div>
+                    <div class="meta-value">154</div>
+                </div>
+                <div class="meta-card">
+                    <div class="meta-label">Report Type</div>
+                    <div class="meta-value">HTML + PDF</div>
+                </div>
+                <div class="meta-card">
+                    <div class="meta-label">Coverage</div>
+                    <div class="meta-value">Multi-tool ingestion</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>Severity Summary</h2>
+            <p class="lead">
+                High-level distribution of normalized findings across all uploaded reports.
+            </p>
+
+            <div class="summary-grid">
+                
+                <article class="summary-card critical">
+                    <div class="summary-label">Critical</div>
+                    <div class="summary-value">2</div>
+                </article>
+                
+                <article class="summary-card high">
+                    <div class="summary-label">High</div>
+                    <div class="summary-value">2</div>
+                </article>
+                
+                <article class="summary-card medium">
+                    <div class="summary-label">Medium</div>
+                    <div class="summary-value">19</div>
+                </article>
+                
+                <article class="summary-card low">
+                    <div class="summary-label">Low</div>
+                    <div class="summary-value">131</div>
+                </article>
+                
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>Detailed Findings</h2>
+            <p class="lead">
+                Each record below shows the normalized severity, originating tool, mapped OWASP category,
+                and remediation detail when present.
+            </p>
+
+            <div class="findings">
+                
+                <article class="finding-card">
+                    <h3>prismjs: DOM Clobbering vulnerability within the Prism library's prism-autoloader plugin</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Medium">Medium</span>
+                        <span class="pill">Tool: Trivy</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Prism (aka PrismJS) through 1.29.0 allows DOM Clobbering (with resultant XSS for untrusted input that contains HTML but does not directly contain JavaScript), because document.currentScript lookup can be shadowed by attacker-injected HTML elements.</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">1.30.0</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">CVE-2024-53382</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>prismjs: DOM Clobbering vulnerability within the Prism library's prism-autoloader plugin</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Medium">Medium</span>
+                        <span class="pill">Tool: Trivy</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Prism (aka PrismJS) through 1.29.0 allows DOM Clobbering (with resultant XSS for untrusted input that contains HTML but does not directly contain JavaScript), because document.currentScript lookup can be shadowed by attacker-injected HTML elements.</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">1.30.0</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">CVE-2024-53382</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>Prototype pollution in swiper</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Critical">Critical</span>
+                        <span class="pill">Tool: Trivy</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Swiper is a free and mobile touch slider with hardware accelerated transitions and native behavior. Versions 6.5.1 through 12.1.1 have a Prototype pollution vulnerability. The vulnerability resides in line 94 of shared/utils.mjs, where the indexOf() function is used to check whether user provided input contain forbidden strings. Despite a previous fix that attempted to mitigate prototype pollution by checking whether user input contained a forbidden key, it is still possible to pollute Object.prototype via a crafted input using Array.prototype. The exploit works across Windows and Linux and on Node and Bun runtimes.  Any application that processes attacker-controlled input using this package may be affected  by the following: Authentication Bypass, Denial of Service and RCE. This issue is fixed in version 12.1.2.</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">12.1.2</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">CVE-2026-27212</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>Prototype pollution in swiper</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Critical">Critical</span>
+                        <span class="pill">Tool: Trivy</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Swiper is a free and mobile touch slider with hardware accelerated transitions and native behavior. Versions 6.5.1 through 12.1.1 have a Prototype pollution vulnerability. The vulnerability resides in line 94 of shared/utils.mjs, where the indexOf() function is used to check whether user provided input contain forbidden strings. Despite a previous fix that attempted to mitigate prototype pollution by checking whether user input contained a forbidden key, it is still possible to pollute Object.prototype via a crafted input using Array.prototype. The exploit works across Windows and Linux and on Node and Bun runtimes.  Any application that processes attacker-controlled input using this package may be affected  by the following: Authentication Bypass, Denial of Service and RCE. This issue is fixed in version 12.1.2.</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">12.1.2</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">CVE-2026-27212</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>cryptography: Cryptography: Buffer overflow via non-contiguous buffer in API</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Medium">Medium</span>
+                        <span class="pill">Tool: Trivy</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">cryptography is a package designed to expose cryptographic primitives and recipes to Python developers. From 45.0.0 to before 46.0.7, if a non-contiguous buffer was passed to APIs which accepted Python buffers (e.g. Hash.update()), this could lead to buffer overflows. This vulnerability is fixed in 46.0.7.</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">46.0.7</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">CVE-2026-39892</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>python-cryptography: Cryptography: Security bypass due to improper DNS name constraint validation</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Trivy</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">cryptography is a package designed to expose cryptographic primitives and recipes to Python developers. Prior to version 46.0.6, DNS name constraints were only validated against SANs within child certificates, and not the "peer name" presented during each validation. Consequently, cryptography would allow a peer named bar.example.com to validate against a wildcard leaf certificate for *.example.com, even if the leaf's parent certificate (or upwards) contained an excluded subtree constraint for bar.example.com. This issue has been patched in version 46.0.6.</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">46.0.6</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">CVE-2026-34073</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>langchain: path traversal in legacy load_prompt functions in langchain-core</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge High">High</span>
+                        <span class="pill">Tool: Trivy</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">LangChain is a framework for building agents and LLM-powered applications. Prior to version 1.2.22, multiple functions in langchain_core.prompts.loading read files from paths embedded in deserialized config dicts without validating against directory traversal or absolute path injection. When an application passes user-influenced prompt configurations to load_prompt() or load_prompt_from_config(), an attacker can read arbitrary files on the host filesystem, constrained only by file-extension checks (.txt for templates, .json/.yaml for examples). This issue has been patched in version 1.2.22.</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">1.2.22</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">CVE-2026-34070</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>langchain: SSRF via image_url token counting in ChatOpenAI.get_num_tokens_from_messages</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Trivy</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">LangChain is a framework for building agents and LLM-powered applications. Prior to 1.2.11, the ChatOpenAI.get_num_tokens_from_messages() method fetches arbitrary image_url values without validation when computing token counts for vision-enabled models. This allows attackers to trigger Server-Side Request Forgery (SSRF) attacks by providing malicious image URLs in user input. This vulnerability is fixed in 1.2.11.</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">1.2.11</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">CVE-2026-26013</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>LangGraph checkpoint loading has unsafe msgpack deserialization</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Medium">Medium</span>
+                        <span class="pill">Tool: Trivy</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">LangGraph SQLite Checkpoint is an implementation of LangGraph CheckpointSaver that uses SQLite DB (both sync and async, via aiosqlite). In version 1.0.9 and prior, LangGraph checkpointers can load msgpack-encoded checkpoints that reconstruct Python objects during deserialization. If an attacker can modify checkpoint data in the backing store (for example, after a database compromise or other privileged write access to the persistence layer), they can potentially supply a crafted payload that triggers unsafe object reconstruction when the checkpoint is loaded. No known patch is public.</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">1.0.10</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">CVE-2026-28277</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>LangGraph Checkpoint affected by RCE in "json" mode of JsonPlusSerializer </h3>
+
+                    <div class="finding-meta">
+                        <span class="badge High">High</span>
+                        <span class="pill">Tool: Trivy</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">LangGraph SQLite Checkpoint is an implementation of LangGraph CheckpointSaver that uses SQLite DB (both sync and async, via aiosqlite). In versions 2.1.2 and below, the JsonPlusSerializer (used as the default serialization protocol for all checkpointing) contains a Remote Code Execution (RCE) vulnerability when deserializing payloads saved in the "json" serialization mode. By default, the serializer attempts to use "msgpack" for serialization. However, prior to version 3.0 of the checkpointer library, if illegal Unicode surrogate values caused serialization to fail, it would fall back to using the "json" mode. This issue is fixed in version 3.0.0.</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">3.0.0</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">CVE-2025-64439</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>langgraph-checkpoint: LangGraph Checkpoint: Remote Code Execution via insecure deserialization in caching layer</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Medium">Medium</span>
+                        <span class="pill">Tool: Trivy</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">LangGraph Checkpoint defines the base interface for LangGraph checkpointers. Prior to version 4.0.0, a Remote Code Execution vulnerability exists in LangGraph's caching layer when applications enable cache backends that inherit from `BaseCache` and opt nodes into caching via `CachePolicy`. Prior to `langgraph-checkpoint` 4.0.0, `BaseCache` defaults to `JsonPlusSerializer(pickle_fallback=True)`. When msgpack serialization fails, cached values can be deserialized via `pickle.loads(...)`. Caching is not enabled by default. Applications are affected only when the application explicitly enables a cache backend (for example by passing `cache=...` to `StateGraph.compile(...)` or otherwise configuring a `BaseCache` implementation), one or more nodes opt into caching via `CachePolicy`, and the attacker can write to the cache backend (for example a network-accessible Redis instance with weak/no auth, shared cache infrastructure reachable by other tenants/services, or a writable SQLite cache file). An attacker must be able to write attacker-controlled bytes into the cache backend such that the LangGraph process later reads and deserializes them. This typically requires write access to a networked cache (for example a network-accessible Redis instance with weak/no auth or shared cache infrastructure reachable by other tenants/services) or write access to local cache storage (for example a writable SQLite cache file via permissive file permissions or a shared writable volume). Because exploitation requires write access to the cache storage layer, this is a post-compromise / post-access escalation vector. LangGraph Checkpoint 4.0.0 patches the issue.</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">4.0.0</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">CVE-2026-27794</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>pip: pip missing checks on symbolic link extraction</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Medium">Medium</span>
+                        <span class="pill">Tool: Trivy</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">When extracting a tar archive pip may not check symbolic links point into the extraction directory if the tarfile module doesn't implement PEP 706.
+Note that upgrading pip to a "fixed" version for this vulnerability doesn't fix all known vulnerabilities that are remediated by using a Python version that implements PEP 706.
+
+Note that this is a vulnerability in pip's fallback implementation of tar extraction for Python versions that don't implement PEP 706
+and therefore are not secure to all vulnerabilities in the Python 'tarfile' module. If you're using a Python version that implements PEP 706
+then pip doesn't use the "vulnerable" fallback code.
+
+Mitigations include upgrading to a version of pip that includes the fix, upgrading to a Python version that implements PEP 706 (Python >=3.9.17, >=3.10.12, >=3.11.4, or >=3.12),
+applying the linked patch, or inspecting source distributions (sdists) before installation as is already a best-practice.</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">25.3</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">CVE-2025-8869</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>pip: pip: Information disclosure via path traversal when installing crafted wheel archives</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Trivy</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">When pip is installing and extracting a maliciously crafted wheel archive, files may be extracted outside the installation directory. The path traversal is limited to prefixes of the installation directory, thus isn't able to inject or overwrite executable files in typical situations.</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">26.0</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">CVE-2026-1703</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>try_except_pass</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Try, Except, Pass detected. (./audit/signals.py:192)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B110</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>try_except_pass</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Try, Except, Pass detected. (./audit/utils.py:20)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B110</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>django_mark_safe</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Medium">Medium</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Potential XSS on mark_safe function. (./gmc_rfq/claims_analytics.py:34)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/plugins/b703_django_mark_safe.html</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B703</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>blacklist</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Medium">Medium</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Use of mark_safe() may expose cross-site scripting vulnerabilities and should be reviewed. (./gmc_rfq/claims_analytics.py:34)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b308-mark-safe</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B308</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>django_mark_safe</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Medium">Medium</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Potential XSS on mark_safe function. (./gmc_rfq/claims_analytics.py:45)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/plugins/b703_django_mark_safe.html</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B703</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>blacklist</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Medium">Medium</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Use of mark_safe() may expose cross-site scripting vulnerabilities and should be reviewed. (./gmc_rfq/claims_analytics.py:45)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b308-mark-safe</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B308</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>django_mark_safe</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Medium">Medium</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Potential XSS on mark_safe function. (./gmc_rfq/claims_analytics.py:801)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/plugins/b703_django_mark_safe.html</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B703</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>blacklist</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Medium">Medium</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Use of mark_safe() may expose cross-site scripting vulnerabilities and should be reviewed. (./gmc_rfq/claims_analytics.py:801)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b308-mark-safe</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B308</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>django_mark_safe</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Medium">Medium</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Potential XSS on mark_safe function. (./gmc_rfq/claims_analytics.py:926)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/plugins/b703_django_mark_safe.html</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B703</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>blacklist</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Medium">Medium</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Use of mark_safe() may expose cross-site scripting vulnerabilities and should be reviewed. (./gmc_rfq/claims_analytics.py:926)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b308-mark-safe</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B308</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>django_mark_safe</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Medium">Medium</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Potential XSS on mark_safe function. (./gmc_rfq/claims_analytics.py:949)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/plugins/b703_django_mark_safe.html</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B703</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>blacklist</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Medium">Medium</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Use of mark_safe() may expose cross-site scripting vulnerabilities and should be reviewed. (./gmc_rfq/claims_analytics.py:949)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b308-mark-safe</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B308</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>hardcoded_password_string</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Possible hardcoded password: '1' (./gmc_rfq/excel_column_matcher.py:377)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/plugins/b105_hardcoded_password_string.html</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B105</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>hardcoded_password_string</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Possible hardcoded password: '2' (./gmc_rfq/excel_column_matcher.py:397)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/plugins/b105_hardcoded_password_string.html</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B105</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>hardcoded_password_string</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Possible hardcoded password: '3' (./gmc_rfq/excel_column_matcher.py:426)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/plugins/b105_hardcoded_password_string.html</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B105</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>hardcoded_password_string</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Possible hardcoded password: '3' (./gmc_rfq/excel_column_matcher.py:438)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/plugins/b105_hardcoded_password_string.html</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B105</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>hardcoded_password_string</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Possible hardcoded password: '4' (./gmc_rfq/excel_column_matcher.py:466)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/plugins/b105_hardcoded_password_string.html</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B105</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>hardcoded_password_string</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Possible hardcoded password: 'NBHIUAT@6$' (./gmc_rfq/management/commands/create_uat_users.py:10)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/plugins/b105_hardcoded_password_string.html</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B105</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>blacklist</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Standard pseudo-random generators are not suitable for security/cryptographic purposes. (./gmc_rfq/management/commands/create_uat_users.py:90)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B311</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>hardcoded_password_string</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Possible hardcoded password: 'Reqdas@6$' (./gmc_rfq/management/commands/step4.py:24)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/plugins/b105_hardcoded_password_string.html</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B105</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>hardcoded_password_string</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Possible hardcoded password: 'Reqdas@6$' (./gmc_rfq/management/commands/step4.py:34)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/plugins/b105_hardcoded_password_string.html</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B105</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>hardcoded_password_string</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Possible hardcoded password: 'Reqdas@6$' (./gmc_rfq/management/commands/step4.py:44)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/plugins/b105_hardcoded_password_string.html</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B105</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>hardcoded_password_string</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Possible hardcoded password: 'Reqdas@6$' (./gmc_rfq/management/commands/step4.py:55)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/plugins/b105_hardcoded_password_string.html</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B105</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>hardcoded_password_string</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Possible hardcoded password: 'Reqdas@6$' (./gmc_rfq/management/commands/step4.py:66)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/plugins/b105_hardcoded_password_string.html</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B105</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>hardcoded_password_string</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Possible hardcoded password: 'Reqdas@6$' (./gmc_rfq/management/commands/step4.py:76)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/plugins/b105_hardcoded_password_string.html</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B105</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>hardcoded_password_string</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Possible hardcoded password: 'Reqdas@6$' (./gmc_rfq/management/commands/step4.py:87)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/plugins/b105_hardcoded_password_string.html</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B105</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>hardcoded_password_funcarg</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Possible hardcoded password: 'Reqdas@6$' (./gmc_rfq/management/commands/step4.py:126)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/plugins/b106_hardcoded_password_funcarg.html</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B106</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>try_except_pass</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Try, Except, Pass detected. (./gmc_rfq/preprocessing/date_normalizer.py:545)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B110</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>hardcoded_password_string</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Possible hardcoded password: '' (./gmc_rfq/split_quote_utils.py:367)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/plugins/b105_hardcoded_password_string.html</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B105</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>django_mark_safe</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Medium">Medium</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Potential XSS on mark_safe function. (./gmc_rfq/templatetags/custom_filters.py:176)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/plugins/b703_django_mark_safe.html</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B703</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>blacklist</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Medium">Medium</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Use of mark_safe() may expose cross-site scripting vulnerabilities and should be reviewed. (./gmc_rfq/templatetags/custom_filters.py:176)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b308-mark-safe</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B308</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>blacklist</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Medium">Medium</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Use of mark_safe() may expose cross-site scripting vulnerabilities and should be reviewed. (./gmc_rfq/templatetags/custom_filters.py:178)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b308-mark-safe</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B308</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>try_except_pass</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Try, Except, Pass detected. (./gmc_rfq/utils.py:86)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B110</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>try_except_pass</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Try, Except, Pass detected. (./gmc_rfq/utils.py:121)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B110</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>try_except_pass</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Try, Except, Pass detected. (./gmc_rfq/utils.py:3626)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B110</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>try_except_pass</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Try, Except, Pass detected. (./gmc_rfq/utils.py:3632)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B110</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>try_except_pass</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Try, Except, Pass detected. (./gmc_rfq/views.py:190)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B110</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>try_except_pass</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Try, Except, Pass detected. (./gmc_rfq/views.py:2783)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B110</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>try_except_pass</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Try, Except, Pass detected. (./gmc_rfq/views.py:4167)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B110</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>try_except_pass</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Try, Except, Pass detected. (./gmc_rfq/views.py:7525)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B110</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>blacklist</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Standard pseudo-random generators are not suitable for security/cryptographic purposes. (./gmc_rfq/workflow.py:4195)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B311</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>blacklist</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Standard pseudo-random generators are not suitable for security/cryptographic purposes. (./gmc_rfq/workflow.py:4200)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B311</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>try_except_pass</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Try, Except, Pass detected. (./insurance_apis/services/orchestrator.py:473)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B110</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>try_except_pass</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Try, Except, Pass detected. (./insurance_apis/views/premiums.py:978)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B110</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>try_except_pass</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Try, Except, Pass detected. (./intelligence/agents/addon_mapper.py:194)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B110</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>try_except_pass</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Try, Except, Pass detected. (./intelligence/agents/demographic_parser.py:303)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B110</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>try_except_pass</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Try, Except, Pass detected. (./intelligence/agents/demographic_parser.py:315)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B110</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>try_except_continue</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Try, Except, Continue detected. (./intelligence/agents/demographic_parser.py:342)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/plugins/b112_try_except_continue.html</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B112</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>try_except_continue</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Try, Except, Continue detected. (./intelligence/agents/demographic_parser.py:519)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/plugins/b112_try_except_continue.html</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B112</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>try_except_pass</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Try, Except, Pass detected. (./intelligence/parsers/document_classifier.py:369)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B110</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>try_except_pass</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Try, Except, Pass detected. (./intelligence/parsers/document_classifier.py:633)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B110</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>try_except_pass</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Try, Except, Pass detected. (./intelligence/parsers/email_parser.py:79)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B110</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>try_except_pass</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Try, Except, Pass detected. (./intelligence/parsers/email_parser.py:87)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B110</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>blacklist</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Consider possible security implications associated with the subprocess module. (./intelligence/setup.py:12)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_imports.html#b404-import-subprocess</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B404</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>subprocess_without_shell_equals_true</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">subprocess call - check for execution of untrusted input. (./intelligence/setup.py:28)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/plugins/b603_subprocess_without_shell_equals_true.html</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B603</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>try_except_pass</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Try, Except, Pass detected. (./masters/api_views.py:43)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B110</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>try_except_pass</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Try, Except, Pass detected. (./masters/views.py:543)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B110</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>try_except_pass</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Try, Except, Pass detected. (./product_configuration/api_views.py:1650)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B110</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>try_except_pass</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Try, Except, Pass detected. (./product_configuration/endorsement_views.py:354)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B110</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>try_except_pass</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Try, Except, Pass detected. (./product_configuration/endorsement_views.py:505)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B110</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>blacklist</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Standard pseudo-random generators are not suitable for security/cryptographic purposes. (./product_configuration/management/commands/generate_test_rfqs.py:219)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B311</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>blacklist</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Standard pseudo-random generators are not suitable for security/cryptographic purposes. (./product_configuration/management/commands/generate_test_rfqs.py:220)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B311</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>blacklist</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Standard pseudo-random generators are not suitable for security/cryptographic purposes. (./product_configuration/management/commands/generate_test_rfqs.py:220)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B311</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>blacklist</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Standard pseudo-random generators are not suitable for security/cryptographic purposes. (./product_configuration/management/commands/generate_test_rfqs.py:220)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B311</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>blacklist</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Standard pseudo-random generators are not suitable for security/cryptographic purposes. (./product_configuration/management/commands/generate_test_rfqs.py:221)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B311</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>blacklist</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Standard pseudo-random generators are not suitable for security/cryptographic purposes. (./product_configuration/management/commands/generate_test_rfqs.py:222)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B311</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>blacklist</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Standard pseudo-random generators are not suitable for security/cryptographic purposes. (./product_configuration/management/commands/generate_test_rfqs.py:223)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B311</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>blacklist</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Standard pseudo-random generators are not suitable for security/cryptographic purposes. (./product_configuration/management/commands/generate_test_rfqs.py:236)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B311</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>blacklist</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Standard pseudo-random generators are not suitable for security/cryptographic purposes. (./product_configuration/management/commands/generate_test_rfqs.py:240)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B311</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>blacklist</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Standard pseudo-random generators are not suitable for security/cryptographic purposes. (./product_configuration/management/commands/generate_test_rfqs.py:245)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B311</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>blacklist</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Standard pseudo-random generators are not suitable for security/cryptographic purposes. (./product_configuration/management/commands/generate_test_rfqs.py:247)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B311</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>blacklist</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Standard pseudo-random generators are not suitable for security/cryptographic purposes. (./product_configuration/management/commands/generate_test_rfqs.py:250)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B311</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>blacklist</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Standard pseudo-random generators are not suitable for security/cryptographic purposes. (./product_configuration/management/commands/generate_test_rfqs.py:252)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B311</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>blacklist</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Standard pseudo-random generators are not suitable for security/cryptographic purposes. (./product_configuration/management/commands/generate_test_rfqs.py:253)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B311</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>blacklist</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Standard pseudo-random generators are not suitable for security/cryptographic purposes. (./product_configuration/management/commands/generate_test_rfqs.py:254)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B311</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>blacklist</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Standard pseudo-random generators are not suitable for security/cryptographic purposes. (./product_configuration/management/commands/generate_test_rfqs.py:270)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B311</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>blacklist</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Standard pseudo-random generators are not suitable for security/cryptographic purposes. (./product_configuration/management/commands/generate_test_rfqs.py:281)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B311</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>blacklist</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Standard pseudo-random generators are not suitable for security/cryptographic purposes. (./product_configuration/management/commands/generate_test_rfqs.py:282)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B311</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>blacklist</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Standard pseudo-random generators are not suitable for security/cryptographic purposes. (./product_configuration/management/commands/generate_test_rfqs.py:291)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B311</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>blacklist</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Standard pseudo-random generators are not suitable for security/cryptographic purposes. (./product_configuration/management/commands/generate_test_rfqs.py:296)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B311</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>blacklist</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Standard pseudo-random generators are not suitable for security/cryptographic purposes. (./product_configuration/management/commands/generate_test_rfqs.py:297)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B311</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>blacklist</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Standard pseudo-random generators are not suitable for security/cryptographic purposes. (./product_configuration/management/commands/generate_test_rfqs.py:339)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B311</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>blacklist</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Standard pseudo-random generators are not suitable for security/cryptographic purposes. (./product_configuration/management/commands/generate_test_rfqs.py:345)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B311</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>blacklist</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Standard pseudo-random generators are not suitable for security/cryptographic purposes. (./product_configuration/management/commands/generate_test_rfqs.py:346)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B311</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>blacklist</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Standard pseudo-random generators are not suitable for security/cryptographic purposes. (./product_configuration/management/commands/generate_test_rfqs.py:347)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B311</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>blacklist</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Standard pseudo-random generators are not suitable for security/cryptographic purposes. (./product_configuration/management/commands/generate_test_rfqs.py:348)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B311</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>blacklist</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Standard pseudo-random generators are not suitable for security/cryptographic purposes. (./product_configuration/management/commands/generate_test_rfqs.py:349)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B311</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>blacklist</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Standard pseudo-random generators are not suitable for security/cryptographic purposes. (./product_configuration/management/commands/generate_test_rfqs.py:350)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B311</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>blacklist</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Standard pseudo-random generators are not suitable for security/cryptographic purposes. (./product_configuration/management/commands/generate_test_rfqs.py:351)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B311</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>blacklist</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Standard pseudo-random generators are not suitable for security/cryptographic purposes. (./product_configuration/management/commands/generate_test_rfqs.py:352)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B311</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>blacklist</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Standard pseudo-random generators are not suitable for security/cryptographic purposes. (./product_configuration/management/commands/generate_test_rfqs.py:353)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B311</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>blacklist</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Standard pseudo-random generators are not suitable for security/cryptographic purposes. (./product_configuration/management/commands/generate_test_rfqs.py:361)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B311</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>blacklist</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Standard pseudo-random generators are not suitable for security/cryptographic purposes. (./product_configuration/management/commands/generate_test_rfqs.py:362)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B311</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>blacklist</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Standard pseudo-random generators are not suitable for security/cryptographic purposes. (./product_configuration/management/commands/generate_test_rfqs.py:363)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B311</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>blacklist</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Standard pseudo-random generators are not suitable for security/cryptographic purposes. (./product_configuration/management/commands/generate_test_rfqs.py:364)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B311</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>blacklist</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Standard pseudo-random generators are not suitable for security/cryptographic purposes. (./product_configuration/management/commands/generate_test_rfqs.py:365)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B311</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>blacklist</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Standard pseudo-random generators are not suitable for security/cryptographic purposes. (./product_configuration/management/commands/generate_test_rfqs.py:366)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B311</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>blacklist</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Standard pseudo-random generators are not suitable for security/cryptographic purposes. (./product_configuration/management/commands/generate_test_rfqs.py:368)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B311</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>blacklist</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Standard pseudo-random generators are not suitable for security/cryptographic purposes. (./product_configuration/management/commands/generate_test_rfqs.py:408)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B311</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>blacklist</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Standard pseudo-random generators are not suitable for security/cryptographic purposes. (./product_configuration/management/commands/generate_test_rfqs.py:410)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B311</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>blacklist</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Standard pseudo-random generators are not suitable for security/cryptographic purposes. (./product_configuration/management/commands/generate_test_rfqs.py:412)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B311</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>blacklist</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Standard pseudo-random generators are not suitable for security/cryptographic purposes. (./product_configuration/management/commands/generate_test_rfqs.py:426)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B311</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>blacklist</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Standard pseudo-random generators are not suitable for security/cryptographic purposes. (./product_configuration/management/commands/generate_test_rfqs.py:460)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B311</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>blacklist</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Standard pseudo-random generators are not suitable for security/cryptographic purposes. (./product_configuration/management/commands/generate_test_rfqs.py:469)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B311</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>blacklist</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Standard pseudo-random generators are not suitable for security/cryptographic purposes. (./product_configuration/management/commands/generate_test_rfqs.py:523)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B311</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>blacklist</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Standard pseudo-random generators are not suitable for security/cryptographic purposes. (./product_configuration/management/commands/generate_test_rfqs.py:552)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B311</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>blacklist</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Standard pseudo-random generators are not suitable for security/cryptographic purposes. (./product_configuration/management/commands/generate_test_rfqs.py:552)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B311</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>blacklist</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Standard pseudo-random generators are not suitable for security/cryptographic purposes. (./product_configuration/management/commands/generate_test_rfqs.py:556)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B311</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>blacklist</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Standard pseudo-random generators are not suitable for security/cryptographic purposes. (./product_configuration/management/commands/generate_test_rfqs.py:559)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B311</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>blacklist</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Standard pseudo-random generators are not suitable for security/cryptographic purposes. (./product_configuration/management/commands/generate_test_rfqs.py:562)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B311</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>blacklist</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Standard pseudo-random generators are not suitable for security/cryptographic purposes. (./product_configuration/management/commands/generate_test_rfqs.py:565)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B311</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>blacklist</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Standard pseudo-random generators are not suitable for security/cryptographic purposes. (./product_configuration/management/commands/generate_test_rfqs.py:596)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B311</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>blacklist</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Standard pseudo-random generators are not suitable for security/cryptographic purposes. (./product_configuration/management/commands/generate_test_rfqs.py:596)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B311</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>blacklist</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Standard pseudo-random generators are not suitable for security/cryptographic purposes. (./product_configuration/management/commands/generate_test_rfqs.py:600)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B311</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>blacklist</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Standard pseudo-random generators are not suitable for security/cryptographic purposes. (./product_configuration/management/commands/generate_test_rfqs.py:603)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B311</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>blacklist</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Standard pseudo-random generators are not suitable for security/cryptographic purposes. (./product_configuration/management/commands/generate_test_rfqs.py:607)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B311</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>blacklist</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Standard pseudo-random generators are not suitable for security/cryptographic purposes. (./product_configuration/management/commands/generate_test_rfqs.py:610)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B311</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>blacklist</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Standard pseudo-random generators are not suitable for security/cryptographic purposes. (./product_configuration/management/commands/generate_test_rfqs.py:613)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B311</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>try_except_pass</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Try, Except, Pass detected. (./product_configuration/pricing_engine.py:2730)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B110</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>try_except_pass</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Try, Except, Pass detected. (./product_configuration/pricing_engine.py:5302)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B110</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>try_except_pass</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Try, Except, Pass detected. (./product_configuration/quote_generation.py:1737)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B110</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>blacklist</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Consider possible security implications associated with the subprocess module. (./product_configuration/views.py:23)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_imports.html#b404-import-subprocess</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B404</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>try_except_pass</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Try, Except, Pass detected. (./product_configuration/views.py:1373)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B110</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>try_except_pass</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Try, Except, Pass detected. (./product_configuration/views_bulk_import.py:178)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B110</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>try_except_pass</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Try, Except, Pass detected. (./product_configuration/views_management.py:312)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B110</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>try_except_pass</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Try, Except, Pass detected. (./tars/decorators.py:149)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B110</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>try_except_pass</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Try, Except, Pass detected. (./tars/middleware/login_ratelimit.py:46)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B110</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>hardcoded_password_string</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Possible hardcoded password: 'local' (./tars/settings.py:27)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/plugins/b105_hardcoded_password_string.html</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B105</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>hardcoded_password_string</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Possible hardcoded password: 'Reqdas@6$' (./uat_runner.py:51)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/plugins/b105_hardcoded_password_string.html</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B105</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>hardcoded_password_string</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Possible hardcoded password: 'Reqdas@6$' (./uat_runner.py:55)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/plugins/b105_hardcoded_password_string.html</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B105</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>hardcoded_password_string</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Possible hardcoded password: 'Reqdas@6$' (./uat_runner.py:59)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/plugins/b105_hardcoded_password_string.html</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B105</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>try_except_pass</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Try, Except, Pass detected. (./uat_runner.py:115)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B110</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>try_except_pass</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Try, Except, Pass detected. (./uat_runner.py:153)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/plugins/b110_try_except_pass.html</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B110</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>hardcoded_password_string</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Possible hardcoded password: '+' (./uat_runner.py:168)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/plugins/b105_hardcoded_password_string.html</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B105</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>hardcoded_password_string</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Possible hardcoded password: '92D050' (./uat_runner.py:1217)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/plugins/b105_hardcoded_password_string.html</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B105</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>hardcoded_password_string</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Possible hardcoded password: '0' (./uat_runner.py:1263)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/plugins/b105_hardcoded_password_string.html</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B105</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>hardcoded_password_string</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Possible hardcoded password: '0' (./uat_runner.py:1340)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/plugins/b105_hardcoded_password_string.html</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B105</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>blacklist</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Standard pseudo-random generators are not suitable for security/cryptographic purposes. (./user_management/management/commands/assign_zones_randomly.py:58)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B311</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>blacklist</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Standard pseudo-random generators are not suitable for security/cryptographic purposes. (./user_management/management/commands/assign_zones_randomly.py:59)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B311</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>blacklist</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Standard pseudo-random generators are not suitable for security/cryptographic purposes. (./user_management/models.py:279)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b311-random</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B311</div>
+                    </div>
+                </article>
+                
+                <article class="finding-card">
+                    <h3>hardcoded_password_string</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge Low">Low</span>
+                        <span class="pill">Tool: Bandit</span>
+                        <span class="pill">OWASP: Unknown</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">Possible hardcoded password: 'NBHIUAT@6$' (./user_management/views.py:2162)</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value ">https://bandit.readthedocs.io/en/1.9.4/plugins/b105_hardcoded_password_string.html</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value ">B105</div>
+                    </div>
+                </article>
+                
+            </div>
+        </section>
+    </div>
+</body>
+</html>

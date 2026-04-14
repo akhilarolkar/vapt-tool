@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VAPT Report</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 18mm;
+        }
+
+        :root {
+            --bg: #f4f7fb;
+            --surface: #ffffff;
+            --surface-alt: #f7fafe;
+            --ink: #152033;
+            --ink-soft: #53627a;
+            --ink-faint: #73819a;
+            --border: #dbe4ef;
+            --brand: #0f4c81;
+            --brand-strong: #09345a;
+            --critical: #7a1427;
+            --critical-bg: #fdecef;
+            --high: #b14f1c;
+            --high-bg: #fff0e7;
+            --medium: #1f5e9b;
+            --medium-bg: #e9f3ff;
+            --low: #1e7a57;
+            --low-bg: #eaf8f1;
+            --radius-lg: 22px;
+            --radius-md: 16px;
+            --radius-sm: 10px;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+            color: var(--ink);
+            background:
+                radial-gradient(circle at top left, rgba(31, 140, 235, 0.10), transparent 32%),
+                linear-gradient(180deg, #f8fbff 0%, var(--bg) 100%);
+            font-size: 13px;
+            line-height: 1.55;
+        }
+
+        .page {
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: 28px;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, rgba(9, 52, 90, 0.98), rgba(15, 76, 129, 0.95));
+            color: #f6fbff;
+            border-radius: var(--radius-lg);
+            padding: 28px;
+            margin-bottom: 22px;
+        }
+
+        .eyebrow {
+            display: inline-block;
+            padding: 7px 11px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.12);
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .hero h1 {
+            margin: 14px 0 10px;
+            font-size: 32px;
+            line-height: 1.05;
+            letter-spacing: -0.03em;
+        }
+
+        .hero p {
+            margin: 0;
+            max-width: 760px;
+            color: rgba(246, 251, 255, 0.82);
+            font-size: 14px;
+        }
+
+        .hero-meta {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .meta-card {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: var(--radius-md);
+            padding: 14px;
+        }
+
+        .meta-label {
+            color: rgba(255, 255, 255, 0.72);
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .meta-value {
+            margin-top: 8px;
+            font-size: 20px;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+        }
+
+        .section {
+            background: rgba(255, 255, 255, 0.92);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 22px;
+            margin-bottom: 18px;
+        }
+
+        .section h2 {
+            margin: 0 0 8px;
+            font-size: 19px;
+            letter-spacing: -0.02em;
+        }
+
+        .section p.lead {
+            margin: 0;
+            color: var(--ink-soft);
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 14px;
+            margin-top: 18px;
+        }
+
+        .summary-card {
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            background: linear-gradient(180deg, #ffffff, var(--surface-alt));
+            padding: 16px;
+        }
+
+        .summary-label {
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            color: var(--ink-faint);
+        }
+
+        .summary-value {
+            margin-top: 10px;
+            font-size: 30px;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+        }
+
+        .summary-card.critical {
+            border-top: 4px solid var(--critical);
+        }
+
+        .summary-card.high {
+            border-top: 4px solid var(--high);
+        }
+
+        .summary-card.medium {
+            border-top: 4px solid var(--medium);
+        }
+
+        .summary-card.low {
+            border-top: 4px solid var(--low);
+        }
+
+        .findings {
+            display: grid;
+            gap: 16px;
+            margin-top: 18px;
+        }
+
+        .finding-card {
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            background: linear-gradient(180deg, #ffffff, #fbfdff);
+            padding: 18px;
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+
+        .finding-card h3 {
+            margin: 0 0 12px;
+            font-size: 18px;
+            letter-spacing: -0.02em;
+        }
+
+        .finding-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+
+        .badge,
+        .pill {
+            display: inline-block;
+            border-radius: 999px;
+            padding: 6px 10px;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.03em;
+        }
+
+        .pill {
+            background: #edf3fb;
+            color: var(--brand-strong);
+        }
+
+        .badge.Critical {
+            color: var(--critical);
+            background: var(--critical-bg);
+        }
+
+        .badge.High {
+            color: var(--high);
+            background: var(--high-bg);
+        }
+
+        .badge.Medium {
+            color: var(--medium);
+            background: var(--medium-bg);
+        }
+
+        .badge.Low {
+            color: var(--low);
+            background: var(--low-bg);
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: 180px minmax(0, 1fr);
+            gap: 10px 16px;
+            align-items: start;
+        }
+
+        .detail-label {
+            color: var(--ink-faint);
+            font-weight: 700;
+        }
+
+        .detail-value {
+            color: var(--ink);
+            word-break: break-word;
+        }
+
+        .detail-value.muted {
+            color: var(--ink-soft);
+        }
+
+        @media print {
+            body {
+                background: #ffffff;
+            }
+
+            .page {
+                max-width: none;
+                margin: 0;
+                padding: 0;
+            }
+
+            .hero,
+            .section,
+            .finding-card,
+            .summary-card {
+                box-shadow: none;
+            }
+        }
+
+        @media (max-width: 900px) {
+            .hero-meta,
+            .summary-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 640px) {
+            .page {
+                padding: 14px;
+            }
+
+            .hero,
+            .section {
+                padding: 18px;
+            }
+
+            .hero-meta,
+            .summary-grid,
+            .detail-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <section class="hero">
+            <span class="eyebrow">Executive Security Report</span>
+            <h1>Consolidated VAPT Findings</h1>
+            <p>
+                This report combines uploaded scanner outputs into a single review-ready document with
+                normalized severity levels, tool attribution, and OWASP mapping where available.
+            </p>
+
+            <div class="hero-meta">
+                <div class="meta-card">
+                    <div class="meta-label">Total Findings</div>
+                    <div class="meta-value">{{ total }}</div>
+                </div>
+                <div class="meta-card">
+                    <div class="meta-label">Report Type</div>
+                    <div class="meta-value">HTML + PDF</div>
+                </div>
+                <div class="meta-card">
+                    <div class="meta-label">Coverage</div>
+                    <div class="meta-value">Multi-tool ingestion</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>Severity Summary</h2>
+            <p class="lead">
+                High-level distribution of normalized findings across all uploaded reports.
+            </p>
+
+            <div class="summary-grid">
+                {% for severity in ["Critical", "High", "Medium", "Low"] %}
+                <article class="summary-card {{ severity | lower }}">
+                    <div class="summary-label">{{ severity }}</div>
+                    <div class="summary-value">{{ summary.get(severity, 0) }}</div>
+                </article>
+                {% endfor %}
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>Detailed Findings</h2>
+            <p class="lead">
+                Each record below shows the normalized severity, originating tool, mapped OWASP category,
+                and remediation detail when present.
+            </p>
+
+            <div class="findings">
+                {% for v in vulns %}
+                <article class="finding-card">
+                    <h3>{{ v.title or "Untitled finding" }}</h3>
+
+                    <div class="finding-meta">
+                        <span class="badge {{ v.severity or 'Low' }}">{{ v.severity or "Low" }}</span>
+                        <span class="pill">Tool: {{ v.tool or "Unknown" }}</span>
+                        <span class="pill">OWASP: {{ v.owasp or "Unknown" }}</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <div class="detail-label">Description</div>
+                        <div class="detail-value">{{ v.description or "No description provided." }}</div>
+
+                        <div class="detail-label">Remediation</div>
+                        <div class="detail-value {{ 'muted' if not v.fix else '' }}">{{ v.fix or "No remediation guidance provided." }}</div>
+
+                        <div class="detail-label">Reference</div>
+                        <div class="detail-value {{ 'muted' if not v.cve else '' }}">{{ v.cve or "No CVE or test identifier provided." }}</div>
+                    </div>
+                </article>
+                {% endfor %}
+            </div>
+        </section>
+    </div>
+</body>
+</html>
