@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VAPT Report Generator</title>
+    <title>DevSecOps Report Generator</title>
     <style>
         :root {
             --bg-gradient-start: #f8fbff;
@@ -136,6 +136,71 @@
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 24px;
+        }
+
+        .help-panel {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-light);
+            background:
+                linear-gradient(180deg, rgba(15, 76, 129, 0.03), rgba(31, 140, 235, 0.02)),
+                var(--surface-alt);
+            display: grid;
+            gap: 16px;
+        }
+
+        .help-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 16px;
+        }
+
+        .help-card {
+            padding: 18px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-light);
+            background: rgba(255, 255, 255, 0.88);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .help-card p + p {
+            margin-top: 10px;
+        }
+
+        .help-card code,
+        .command-list code {
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+            font-size: 0.93em;
+        }
+
+        .command-list {
+            display: grid;
+            gap: 12px;
+        }
+
+        .command-block {
+            margin: 0;
+            padding: 14px 16px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-light);
+            background: #0b1b2b;
+            color: #f4f9ff;
+            overflow-x: auto;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+        }
+
+        .command-label {
+            display: inline-flex;
+            margin-bottom: 8px;
+            padding: 4px 10px;
+            border-radius: 999px;
+            background: var(--brand-light);
+            color: var(--brand-strong);
+            font-size: 0.78em;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
         }
 
         input[type="file"] {
@@ -531,6 +596,10 @@
             .summary-grid {
                 grid-template-columns: repeat(2, 1fr);
             }
+
+            .help-grid {
+                grid-template-columns: 1fr;
+            }
         }
 
         @media (max-width: 768px) {
@@ -594,6 +663,15 @@
                 padding: 10px 20px;
                 font-size: 0.95em;
             }
+
+            .help-panel {
+                padding: 16px;
+            }
+
+            .help-card,
+            .command-block {
+                padding: 14px;
+            }
         }
     </style>
 </head>
@@ -603,7 +681,7 @@
 
     <div class="container">
         <section class="card">
-            <h1>VAPT Report Generator</h1>
+            <h1>DevSecOps Report Generator</h1>
             <p>Upload one or more JSON reports from Trivy/Bandit/ZAP and generate grouped output.</p>
             <form method="post" action="/upload-ui" enctype="multipart/form-data" style="margin-top:12px; display:grid; gap:10px;">
                 <input name="files" type="file" accept=".json,application/json" multiple required>
@@ -611,6 +689,55 @@
                     <button type="submit">Generate consolidated report</button>
                 </div>
             </form>
+
+            <section class="help-panel" aria-label="JSON report help">
+                <div>
+                    <h2>How to get JSON files</h2>
+                    <p>This uploader accepts JSON reports that match the formats parsed by this app: Trivy reports with <code>Results</code>, Bandit reports with <code>results</code> and <code>metrics</code>, and ZAP reports with <code>site</code> and <code>alerts</code>.</p>
+                </div>
+
+                <div class="help-grid">
+                    <article class="help-card">
+                        <h3>Trivy</h3>
+                        <p>Use JSON output and save it to a file before uploading.</p>
+                        <p>Filesystem, image, misconfiguration, and secret results are supported.</p>
+                    </article>
+
+                    <article class="help-card">
+                        <h3>Bandit</h3>
+                        <p>Run Bandit with <code>-f json</code> and write the result to a file.</p>
+                        <p>The parser reads the standard Bandit JSON structure.</p>
+                    </article>
+
+                    <article class="help-card">
+                        <h3>ZAP</h3>
+                        <p>Export a JSON report from ZAP, or generate one with the baseline scan helper.</p>
+                        <p>The JSON should include the usual <code>site</code> and <code>alerts</code> sections.</p>
+                    </article>
+                </div>
+
+                <div class="command-list">
+                    <div>
+                        <span class="command-label">Trivy filesystem</span>
+                        <pre class="command-block"><code>trivy fs --format json --output trivy-fs-report.json .</code></pre>
+                    </div>
+
+                    <div>
+                        <span class="command-label">Trivy image</span>
+                        <pre class="command-block"><code>trivy image --format json --output trivy-image-report.json your-image:tag</code></pre>
+                    </div>
+
+                    <div>
+                        <span class="command-label">Bandit</span>
+                        <pre class="command-block"><code>bandit -r . -f json -o bandit-report.json</code></pre>
+                    </div>
+
+                    <div>
+                        <span class="command-label">ZAP baseline</span>
+                        <pre class="command-block"><code>zap-baseline.py -t https://example.com -J zap-report.json</code></pre>
+                    </div>
+                </div>
+            </section>
         </section>
 
         <div class="grid-2">
@@ -628,7 +755,7 @@
             </section>
 
             <section class="card">
-                <h2>Errors</h2>
+                <h2>File Errors</h2>
                 {% if errors is defined and errors %}
                 <div class="alert">
                     <strong>Some files need attention</strong>
@@ -669,7 +796,7 @@
                 {% endif %}
             </div>
             {% if pdf_status_url is defined and pdf_status_url %}
-            <p class="muted" data-pdf-status data-status-url="{{ pdf_status_url }}" style="margin-top:8px;">Preparing themed PDF in background...</p>
+            <p class="muted" data-pdf-status data-status-url="{{ pdf_status_url }}" style="margin-top:8px;">Preparing PDF in background...</p>
             <div class="progress"><div data-pdf-progress-fill></div></div>
             <p class="muted" data-pdf-progress-text style="margin-top:6px;">Estimated progress: 0%</p>
             {% endif %}
@@ -771,7 +898,7 @@
             if (!pdfStatusEl || !pdfDownload) return true;
 
             if (status === 'ready') {
-                pdfStatusEl.textContent = 'Themed PDF is ready to download.';
+                pdfStatusEl.textContent = 'PDF is ready to download.';
                 pdfDownload.classList.remove('disabled');
                 setProgress(100);
                 return true;
@@ -785,7 +912,7 @@
             }
 
             setProgress(Math.min(95, progress + 8));
-            pdfStatusEl.textContent = progress >= 95 ? 'Finalizing themed PDF. Large reports can take longer.' : 'Preparing themed PDF in background...';
+            pdfStatusEl.textContent = progress >= 95 ? 'Finalizing PDF. Large reports can take longer.' : 'Preparing PDF in background...';
             pdfDownload.classList.add('disabled');
             return false;
         };
@@ -814,7 +941,7 @@
             pdfDownload.addEventListener('click', (event) => {
                 if (!pdfDownload.classList.contains('disabled')) return;
                 event.preventDefault();
-                if (pdfStatusEl) pdfStatusEl.textContent = 'Still preparing themed PDF. Checking latest status...';
+                if (pdfStatusEl) pdfStatusEl.textContent = 'Still preparing PDF. Checking latest status...';
                 pollStatus();
             });
         }
