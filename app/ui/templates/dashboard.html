@@ -157,6 +157,50 @@
             gap: 16px;
         }
 
+        .help-panel summary {
+            list-style: none;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            cursor: pointer;
+        }
+
+        .help-panel summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .help-panel summary h2 {
+            margin-bottom: 0;
+        }
+
+        .help-panel-toggle {
+            flex: 0 0 auto;
+            width: 34px;
+            height: 34px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            background: rgba(255, 255, 255, 0.82);
+            color: var(--brand-strong);
+            display: grid;
+            place-items: center;
+            font-size: 1.05em;
+            font-weight: 800;
+            transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+        }
+
+        .help-panel[open] .help-panel-toggle {
+            transform: rotate(180deg);
+            background: var(--brand-light);
+            border-color: rgba(15, 76, 129, 0.18);
+        }
+
+        .help-panel-content {
+            display: grid;
+            gap: 16px;
+            margin-top: 16px;
+        }
+
         .help-grid {
             display: grid;
             grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -518,6 +562,59 @@
             margin: 20px 0;
         }
 
+        .pagination {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .pagination-pages {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .pagination-btn {
+            min-width: 42px;
+            padding: 9px 14px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            color: var(--brand-strong);
+            font-weight: 700;
+            font-size: 0.92em;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .pagination-btn:hover:not(:disabled) {
+            border-color: rgba(15, 76, 129, 0.28);
+            background: var(--brand-lighter);
+            box-shadow: var(--shadow-md);
+        }
+
+        .pagination-btn.active {
+            background: linear-gradient(135deg, var(--brand), var(--brand-accent));
+            color: #ffffff;
+            border-color: transparent;
+        }
+
+        .pagination-btn:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .empty-state {
+            margin-top: 20px;
+            padding: 18px 20px;
+            border-radius: var(--radius-lg);
+            border: 1px dashed var(--border);
+            background: linear-gradient(180deg, rgba(15, 76, 129, 0.02), rgba(255, 255, 255, 0.92));
+            color: var(--ink-faint);
+        }
+
         .search-input {
             width: 100%;
             padding: 14px 16px;
@@ -646,6 +743,20 @@
             font-size: 0.95em;
             color: var(--ink-faint);
             overflow-wrap: anywhere;
+        }
+
+        .report-findings-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 18px;
+        }
+
+        .report-findings-summary {
+            font-size: 0.92em;
+            color: var(--ink-faint);
         }
 
         .finding {
@@ -883,6 +994,15 @@
                 gap: 12px;
             }
 
+            .pagination {
+                justify-content: space-between;
+            }
+
+            .report-findings-toolbar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
             .search-input {
                 padding: 12px 14px;
             }
@@ -1007,6 +1127,19 @@
                 padding: 14px 16px;
             }
 
+            .pagination {
+                gap: 8px;
+            }
+
+            .pagination-pages {
+                gap: 6px;
+            }
+
+            .pagination-btn {
+                min-width: 38px;
+                padding: 8px 12px;
+            }
+
             .toast-icon {
                 width: 32px;
                 height: 32px;
@@ -1056,90 +1189,96 @@
                 </div>
             </form>
 
-            <section class="help-panel" aria-label="JSON report help">
-                <div>
+            <details class="help-panel" aria-label="JSON report help">
+                <summary>
                     <h2>How to get JSON files</h2>
-                    <p>This uploader accepts JSON reports that match the formats parsed by this app: Trivy reports with <code>Results</code>, Bandit reports with <code>results</code> and <code>metrics</code>, and ZAP reports with <code>site</code> and <code>alerts</code>.</p>
+                    <span class="help-panel-toggle" aria-hidden="true">⌄</span>
+                </summary>
+
+                <div class="help-panel-content">
+                    <div>
+                        <p>This uploader accepts JSON reports that match the formats parsed by this app: Trivy reports with <code>Results</code>, Bandit reports with <code>results</code> and <code>metrics</code>, and ZAP reports with <code>site</code> and <code>alerts</code>.</p>
+                    </div>
+
+                    <div class="help-grid">
+                        <article class="help-card">
+                            <h3>Trivy</h3>
+                            <p>Use JSON output and save it to a file before uploading.</p>
+                            <p>Filesystem, image, misconfiguration, and secret results are supported.</p>
+                        </article>
+
+                        <article class="help-card">
+                            <h3>Bandit</h3>
+                            <p>Run Bandit with <code>-f json</code> and write the result to a file.</p>
+                            <p>The parser reads the standard Bandit JSON structure.</p>
+                        </article>
+
+                        <article class="help-card">
+                            <h3>ZAP</h3>
+                            <p>Export a JSON report from ZAP, or generate one with the baseline scan helper.</p>
+                            <p>The JSON should include the usual <code>site</code> and <code>alerts</code> sections.</p>
+                        </article>
+                    </div>
+
+                    <div class="command-list">
+                        <div class="command-item">
+                            <span class="command-label">Trivy filesystem</span>
+                            <div class="command-shell">
+                                <pre class="command-block"><code>trivy fs --format json --output trivy-fs-report.json .</code></pre>
+                                <span class="copy-feedback" data-copy-feedback>Copied</span>
+                                <button class="copy-btn" type="button" data-copy-command data-copy-command-label="Copy Trivy filesystem command" aria-label="Copy Trivy filesystem command">
+                                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                        <rect x="9" y="9" width="10" height="10" rx="2" stroke="currentColor" stroke-width="1.8"></rect>
+                                        <path d="M7 15H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="command-item">
+                            <span class="command-label">Trivy image</span>
+                            <div class="command-shell">
+                                <pre class="command-block"><code>trivy image --format json --output trivy-image-report.json your-image:tag</code></pre>
+                                <span class="copy-feedback" data-copy-feedback>Copied</span>
+                                <button class="copy-btn" type="button" data-copy-command data-copy-command-label="Copy Trivy image command" aria-label="Copy Trivy image command">
+                                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                        <rect x="9" y="9" width="10" height="10" rx="2" stroke="currentColor" stroke-width="1.8"></rect>
+                                        <path d="M7 15H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="command-item">
+                            <span class="command-label">Bandit</span>
+                            <div class="command-shell">
+                                <pre class="command-block"><code>bandit -r . -f json -o bandit-report.json</code></pre>
+                                <span class="copy-feedback" data-copy-feedback>Copied</span>
+                                <button class="copy-btn" type="button" data-copy-command data-copy-command-label="Copy Bandit command" aria-label="Copy Bandit command">
+                                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                        <rect x="9" y="9" width="10" height="10" rx="2" stroke="currentColor" stroke-width="1.8"></rect>
+                                        <path d="M7 15H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="command-item">
+                            <span class="command-label">ZAP baseline</span>
+                            <div class="command-shell">
+                                <pre class="command-block"><code>zap-baseline.py -t https://example.com -J zap-report.json</code></pre>
+                                <span class="copy-feedback" data-copy-feedback>Copied</span>
+                                <button class="copy-btn" type="button" data-copy-command data-copy-command-label="Copy ZAP baseline command" aria-label="Copy ZAP baseline command">
+                                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                        <rect x="9" y="9" width="10" height="10" rx="2" stroke="currentColor" stroke-width="1.8"></rect>
+                                        <path d="M7 15H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-
-                <div class="help-grid">
-                    <article class="help-card">
-                        <h3>Trivy</h3>
-                        <p>Use JSON output and save it to a file before uploading.</p>
-                        <p>Filesystem, image, misconfiguration, and secret results are supported.</p>
-                    </article>
-
-                    <article class="help-card">
-                        <h3>Bandit</h3>
-                        <p>Run Bandit with <code>-f json</code> and write the result to a file.</p>
-                        <p>The parser reads the standard Bandit JSON structure.</p>
-                    </article>
-
-                    <article class="help-card">
-                        <h3>ZAP</h3>
-                        <p>Export a JSON report from ZAP, or generate one with the baseline scan helper.</p>
-                        <p>The JSON should include the usual <code>site</code> and <code>alerts</code> sections.</p>
-                    </article>
-                </div>
-
-                <div class="command-list">
-                    <div class="command-item">
-                        <span class="command-label">Trivy filesystem</span>
-                        <div class="command-shell">
-                            <pre class="command-block"><code>trivy fs --format json --output trivy-fs-report.json .</code></pre>
-                            <span class="copy-feedback" data-copy-feedback>Copied</span>
-                            <button class="copy-btn" type="button" data-copy-command data-copy-command-label="Copy Trivy filesystem command" aria-label="Copy Trivy filesystem command">
-                                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                                    <rect x="9" y="9" width="10" height="10" rx="2" stroke="currentColor" stroke-width="1.8"></rect>
-                                    <path d="M7 15H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="command-item">
-                        <span class="command-label">Trivy image</span>
-                        <div class="command-shell">
-                            <pre class="command-block"><code>trivy image --format json --output trivy-image-report.json your-image:tag</code></pre>
-                            <span class="copy-feedback" data-copy-feedback>Copied</span>
-                            <button class="copy-btn" type="button" data-copy-command data-copy-command-label="Copy Trivy image command" aria-label="Copy Trivy image command">
-                                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                                    <rect x="9" y="9" width="10" height="10" rx="2" stroke="currentColor" stroke-width="1.8"></rect>
-                                    <path d="M7 15H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="command-item">
-                        <span class="command-label">Bandit</span>
-                        <div class="command-shell">
-                            <pre class="command-block"><code>bandit -r . -f json -o bandit-report.json</code></pre>
-                            <span class="copy-feedback" data-copy-feedback>Copied</span>
-                            <button class="copy-btn" type="button" data-copy-command data-copy-command-label="Copy Bandit command" aria-label="Copy Bandit command">
-                                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                                    <rect x="9" y="9" width="10" height="10" rx="2" stroke="currentColor" stroke-width="1.8"></rect>
-                                    <path d="M7 15H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="command-item">
-                        <span class="command-label">ZAP baseline</span>
-                        <div class="command-shell">
-                            <pre class="command-block"><code>zap-baseline.py -t https://example.com -J zap-report.json</code></pre>
-                            <span class="copy-feedback" data-copy-feedback>Copied</span>
-                            <button class="copy-btn" type="button" data-copy-command data-copy-command-label="Copy ZAP baseline command" aria-label="Copy ZAP baseline command">
-                                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                                    <rect x="9" y="9" width="10" height="10" rx="2" stroke="currentColor" stroke-width="1.8"></rect>
-                                    <path d="M7 15H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </section>
+            </details>
         </section>
 
         <div class="grid-2">
@@ -1256,6 +1395,8 @@
                 </div>
             </div>
 
+            <div class="empty-state" data-findings-empty hidden>No findings match the current search or severity filter.</div>
+
             {% for group in grouped_reports %}
             <article class="report-group" data-report-group data-search-text="{{ (group.source_file ~ ' ' ~ group.scan_type ~ ' ' ~ group.tool)|lower }}">
                 <h3>{{ group.source_file }}</h3>
@@ -1264,6 +1405,7 @@
                 {% for finding in group.findings %}
                 <article
                     class="finding"
+                    data-finding-card
                     data-severity="{{ finding.severity or 'Low' }}"
                     data-search-text="{{ ((finding.title or 'Untitled finding') ~ ' ' ~ (finding.description or '') ~ ' ' ~ (finding.fix or '') ~ ' ' ~ (finding.tool or 'Unknown') ~ ' ' ~ (finding.owasp or 'Unknown') ~ ' ' ~ group.source_file ~ ' ' ~ group.scan_type)|lower }}"
                 >
@@ -1277,6 +1419,15 @@
                     <p style="margin-top:6px;"><strong>Remediation:</strong> {{ finding.fix or "No remediation guidance provided." }}</p>
                 </article>
                 {% endfor %}
+
+                <div class="report-findings-toolbar" data-report-findings-toolbar hidden>
+                    <p class="report-findings-summary" data-report-findings-summary>Showing findings</p>
+                    <div class="pagination" data-report-pagination hidden>
+                        <button class="pagination-btn" type="button" data-report-pagination-prev aria-label="Previous findings page">Prev</button>
+                        <div class="pagination-pages" data-report-pagination-pages></div>
+                        <button class="pagination-btn" type="button" data-report-pagination-next aria-label="Next findings page">Next</button>
+                    </div>
+                </div>
             </article>
             {% endfor %}
         </section>
@@ -1342,25 +1493,126 @@
         const severityButtons = document.querySelectorAll('[data-severity-filter]');
         const findingCards = document.querySelectorAll('[data-severity]');
         const reportGroups = document.querySelectorAll('[data-report-group]');
+        const findingsEmptyState = document.querySelector('[data-findings-empty]');
         let selectedSeverity = 'All';
+        const findingsPerPage = 4;
+        const reportFindingPages = new WeakMap();
+
+        const paginateFindingsInGroup = (group, visibleFindings, resetPage = false) => {
+            const toolbar = group.querySelector('[data-report-findings-toolbar]');
+            const summary = group.querySelector('[data-report-findings-summary]');
+            const pagination = group.querySelector('[data-report-pagination]');
+            const prev = group.querySelector('[data-report-pagination-prev]');
+            const next = group.querySelector('[data-report-pagination-next]');
+            const pages = group.querySelector('[data-report-pagination-pages]');
+            const totalFindings = visibleFindings.length;
+            const totalPages = Math.max(1, Math.ceil(totalFindings / findingsPerPage));
+            let page = resetPage ? 1 : (reportFindingPages.get(group) || 1);
+
+            page = Math.max(1, Math.min(page, totalPages));
+            reportFindingPages.set(group, page);
+
+            const startIndex = (page - 1) * findingsPerPage;
+            const endIndex = startIndex + findingsPerPage;
+
+            Array.from(group.querySelectorAll('[data-finding-card]')).forEach((finding) => {
+                finding.style.display = 'none';
+            });
+
+            visibleFindings.forEach((finding, index) => {
+                finding.style.display = index >= startIndex && index < endIndex ? 'block' : 'none';
+            });
+
+            if (toolbar) {
+                toolbar.hidden = totalFindings === 0;
+            }
+
+            if (pagination) {
+                pagination.hidden = totalFindings <= findingsPerPage;
+            }
+
+            if (prev) {
+                prev.disabled = page === 1 || totalFindings === 0;
+                prev.onclick = () => {
+                    reportFindingPages.set(group, Math.max(1, page - 1));
+                    paginateFindingsInGroup(group, visibleFindings);
+                };
+            }
+
+            if (next) {
+                next.disabled = page === totalPages || totalFindings === 0;
+                next.onclick = () => {
+                    reportFindingPages.set(group, Math.min(totalPages, page + 1));
+                    paginateFindingsInGroup(group, visibleFindings);
+                };
+            }
+
+            if (pages) {
+                pages.innerHTML = '';
+
+                for (let pageNumber = 1; pageNumber <= totalPages; pageNumber += 1) {
+                    const button = document.createElement('button');
+                    button.type = 'button';
+                    button.className = 'pagination-btn' + (pageNumber === page ? ' active' : '');
+                    button.textContent = String(pageNumber);
+                    button.setAttribute('aria-label', 'Go to findings page ' + pageNumber);
+                    button.addEventListener('click', () => {
+                        reportFindingPages.set(group, pageNumber);
+                        paginateFindingsInGroup(group, visibleFindings);
+                    });
+                    pages.appendChild(button);
+                }
+            }
+
+            if (summary) {
+                const visibleStart = totalFindings ? startIndex + 1 : 0;
+                const visibleEnd = Math.min(endIndex, totalFindings);
+                summary.textContent = totalFindings
+                    ? 'Showing findings ' + visibleStart + '-' + visibleEnd + ' of ' + totalFindings
+                    : 'No findings match in this report';
+            }
+        };
+
+        const paginateGroups = (visibleGroups) => {
+            reportGroups.forEach((group) => {
+                group.style.display = 'none';
+            });
+
+            visibleGroups.forEach((group) => {
+                group.style.display = 'block';
+            });
+
+            if (findingsEmptyState) {
+                findingsEmptyState.hidden = visibleGroups.length !== 0;
+            }
+        };
 
         const applyFindingFilters = () => {
             const searchTerm = (searchInput ? searchInput.value : '').trim().toLowerCase();
 
-            findingCards.forEach((card) => {
-                const severity = card.getAttribute('data-severity') || 'Low';
-                const searchText = card.getAttribute('data-search-text') || '';
-                const severityMatch = selectedSeverity === 'All' || selectedSeverity === severity;
-                const searchMatch = !searchTerm || searchText.includes(searchTerm);
-                card.style.display = severityMatch && searchMatch ? 'block' : 'none';
-            });
+            const visibleGroups = [];
 
             reportGroups.forEach((group) => {
                 const groupText = group.getAttribute('data-search-text') || '';
-                const anyVisibleFindings = Array.from(group.querySelectorAll('.finding')).some((finding) => finding.style.display !== 'none');
+                const visibleFindings = Array.from(group.querySelectorAll('[data-finding-card]')).filter((card) => {
+                    const severity = card.getAttribute('data-severity') || 'Low';
+                    const searchText = card.getAttribute('data-search-text') || '';
+                    const severityMatch = selectedSeverity === 'All' || selectedSeverity === severity;
+                    const searchMatch = !searchTerm || searchText.includes(searchTerm);
+                    return severityMatch && searchMatch;
+                });
                 const groupMatches = !searchTerm || groupText.includes(searchTerm);
-                group.style.display = anyVisibleFindings || groupMatches ? 'block' : 'none';
+                const shouldShowGroup = visibleFindings.length > 0 || groupMatches;
+
+                if (shouldShowGroup) {
+                    paginateFindingsInGroup(group, visibleFindings, true);
+                    visibleGroups.push(group);
+                } else {
+                    group.style.display = 'none';
+                }
             });
+
+            paginateGroups(visibleGroups);
         };
 
         severityButtons.forEach((button) => {
