@@ -299,10 +299,24 @@
             transition: opacity 0.3s ease, transform 0.3s ease;
         }
 
+        .toast + .toast {
+            top: 128px;
+        }
+
         .toast.visible {
             opacity: 1;
             transform: translateY(0) scale(1);
             pointer-events: auto;
+        }
+
+        .toast--success {
+            border: 1px solid rgba(30, 122, 87, 0.18);
+            background: linear-gradient(135deg, #f7fffb, #edf9f2);
+        }
+
+        .toast--error {
+            border: 1px solid rgba(122, 20, 39, 0.18);
+            background: linear-gradient(135deg, #fff7f8, #fdecef);
         }
 
         .toast-icon {
@@ -316,6 +330,11 @@
             color: var(--low);
             font-size: 1.1em;
             font-weight: 800;
+        }
+
+        .toast--error .toast-icon {
+            background: rgba(122, 20, 39, 0.12);
+            color: var(--critical);
         }
 
         .toast-copy {
@@ -1000,11 +1019,27 @@
     {% set severity_order = severity_order if severity_order is defined else ["Critical", "High", "Medium", "Low"] %}
 
     {% if has_results %}
-    <div class="toast" data-report-toast role="status" aria-live="polite">
+    <div class="toast toast--success" data-toast role="status" aria-live="polite">
         <div class="toast-icon" aria-hidden="true">✓</div>
         <div class="toast-copy">
             <strong>Report generated successfully</strong>
             <p>{{ total }} findings grouped from {{ uploaded_files|length if uploaded_files is defined else 0 }} uploaded file{% if uploaded_files is defined and uploaded_files|length != 1 %}s{% endif %}.</p>
+        </div>
+        <button class="toast-close" type="button" aria-label="Dismiss notification" data-toast-close>×</button>
+    </div>
+    {% endif %}
+
+    {% if errors is defined and errors %}
+    <div class="toast toast--error" data-toast role="alert" aria-live="assertive">
+        <div class="toast-icon" aria-hidden="true">!</div>
+        <div class="toast-copy">
+            <strong>Some files need attention</strong>
+            <p>
+                {{ errors[0] }}
+                {% if errors|length > 1 %}
+                Plus {{ errors|length - 1 }} more issue{% if errors|length - 1 != 1 %}s{% endif %}.
+                {% endif %}
+            </p>
         </div>
         <button class="toast-close" type="button" aria-label="Dismiss notification" data-toast-close>×</button>
     </div>
@@ -1249,24 +1284,25 @@
     </div>
 
     <script>
-        const reportToast = document.querySelector('[data-report-toast]');
-        const reportToastClose = document.querySelector('[data-toast-close]');
+        const toasts = document.querySelectorAll('[data-toast]');
 
-        if (reportToast) {
+        toasts.forEach((toast) => {
+            const closeButton = toast.querySelector('[data-toast-close]');
+
             window.requestAnimationFrame(() => {
-                reportToast.classList.add('visible');
+                toast.classList.add('visible');
             });
 
             const dismissToast = () => {
-                reportToast.classList.remove('visible');
+                toast.classList.remove('visible');
             };
 
-            if (reportToastClose) {
-                reportToastClose.addEventListener('click', dismissToast);
+            if (closeButton) {
+                closeButton.addEventListener('click', dismissToast);
             }
 
             window.setTimeout(dismissToast, 4500);
-        }
+        });
 
         const copyButtons = document.querySelectorAll('[data-copy-command]');
 
