@@ -179,9 +179,19 @@
             gap: 12px;
         }
 
+        .command-item {
+            display: grid;
+            gap: 8px;
+        }
+
+        .command-shell {
+            position: relative;
+        }
+
         .command-block {
             margin: 0;
             padding: 14px 16px;
+            padding-right: 72px;
             border-radius: var(--radius-md);
             border: 1px solid var(--border-light);
             background: #0b1b2b;
@@ -201,6 +211,136 @@
             font-weight: 700;
             letter-spacing: 0.04em;
             text-transform: uppercase;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 50%;
+            right: 12px;
+            transform: translateY(-50%);
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            border: 1px solid rgba(227, 240, 255, 0.14);
+            background: rgba(227, 240, 255, 0.08);
+            color: #f4f9ff;
+            display: grid;
+            place-items: center;
+            box-shadow: none;
+            padding: 0;
+            transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+        }
+
+        .copy-btn:hover {
+            background: rgba(227, 240, 255, 0.16);
+            border-color: rgba(227, 240, 255, 0.26);
+            transform: translateY(-50%);
+        }
+
+        .copy-btn.copied {
+            background: rgba(30, 122, 87, 0.2);
+            border-color: rgba(30, 122, 87, 0.42);
+            color: #d9ffe9;
+            transform: translateY(-50%);
+        }
+
+        .copy-btn svg {
+            width: 18px;
+            height: 18px;
+            display: block;
+        }
+
+        .copy-feedback {
+            position: absolute;
+            right: 60px;
+            top: 50%;
+            font-size: 0.78em;
+            font-weight: 700;
+            letter-spacing: 0.03em;
+            color: #b8f3d0;
+            opacity: 0;
+            transform: translateY(calc(-50% - 4px));
+            transition: opacity 0.2s ease, transform 0.2s ease;
+            pointer-events: none;
+        }
+
+        .copy-feedback.visible {
+            opacity: 1;
+            transform: translateY(-50%);
+        }
+
+        .toast {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            z-index: 1000;
+            width: min(380px, calc(100vw - 32px));
+            padding: 16px 18px;
+            border-radius: var(--radius-lg);
+            border: 1px solid rgba(30, 122, 87, 0.18);
+            background: linear-gradient(135deg, #f7fffb, #edf9f2);
+            color: var(--ink);
+            box-shadow: var(--shadow-xl);
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            opacity: 0;
+            transform: translateY(-12px) scale(0.98);
+            pointer-events: none;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .toast.visible {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            pointer-events: auto;
+        }
+
+        .toast-icon {
+            flex: 0 0 auto;
+            width: 36px;
+            height: 36px;
+            border-radius: 999px;
+            display: grid;
+            place-items: center;
+            background: rgba(30, 122, 87, 0.12);
+            color: var(--low);
+            font-size: 1.1em;
+            font-weight: 800;
+        }
+
+        .toast-copy {
+            flex: 1 1 auto;
+            min-width: 0;
+        }
+
+        .toast-copy strong {
+            display: block;
+            margin-bottom: 4px;
+            color: var(--ink);
+        }
+
+        .toast-copy p {
+            font-size: 0.94em;
+            color: var(--ink-soft);
+        }
+
+        .toast-close {
+            flex: 0 0 auto;
+            border: none;
+            background: transparent;
+            color: var(--ink-faint);
+            box-shadow: none;
+            padding: 4px;
+            line-height: 1;
+            font-size: 1.1em;
+            cursor: pointer;
+        }
+
+        .toast-close:hover {
+            color: var(--ink);
+            transform: none;
+            box-shadow: none;
         }
 
         input[type="file"] {
@@ -251,13 +391,11 @@
 
         .btn:hover:not(.disabled),
         button:hover:not(.disabled) {
-            transform: translateY(-2px);
             box-shadow: var(--shadow-lg);
         }
 
         .btn:active:not(.disabled),
         button:active:not(.disabled) {
-            transform: translateY(0);
             box-shadow: var(--shadow-md);
         }
 
@@ -296,7 +434,6 @@
 
         .summary-item:hover {
             box-shadow: var(--shadow-md);
-            transform: translateY(-2px);
         }
 
         .summary-item.critical {
@@ -345,6 +482,34 @@
             gap: 10px;
             margin: 20px 0;
             align-items: center;
+        }
+
+        .toolbar {
+            display: grid;
+            gap: 14px;
+            margin: 20px 0;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            background: var(--surface-alt);
+            color: var(--ink);
+            font-size: 0.98em;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+        }
+
+        .search-input::placeholder {
+            color: var(--ink-faint);
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--brand-accent);
+            background: #ffffff;
+            box-shadow: 0 0 0 3px var(--brand-light);
         }
 
         .chips > .muted {
@@ -658,6 +823,14 @@
                 font-size: 0.85em;
             }
 
+            .toolbar {
+                gap: 12px;
+            }
+
+            .search-input {
+                padding: 12px 14px;
+            }
+
             .btn,
             button {
                 padding: 10px 20px;
@@ -672,12 +845,30 @@
             .command-block {
                 padding: 14px;
             }
+
+            .toast {
+                top: 16px;
+                right: 16px;
+                left: 16px;
+                width: auto;
+            }
         }
     </style>
 </head>
 <body>
     {% set has_results = total is defined and total %}
     {% set severity_order = severity_order if severity_order is defined else ["Critical", "High", "Medium", "Low"] %}
+
+    {% if has_results %}
+    <div class="toast" data-report-toast role="status" aria-live="polite">
+        <div class="toast-icon" aria-hidden="true">✓</div>
+        <div class="toast-copy">
+            <strong>Report generated successfully</strong>
+            <p>{{ total }} findings grouped from {{ uploaded_files|length if uploaded_files is defined else 0 }} uploaded file{% if uploaded_files is defined and uploaded_files|length != 1 %}s{% endif %}.</p>
+        </div>
+        <button class="toast-close" type="button" aria-label="Dismiss notification" data-toast-close>×</button>
+    </div>
+    {% endif %}
 
     <div class="container">
         <section class="card">
@@ -717,24 +908,60 @@
                 </div>
 
                 <div class="command-list">
-                    <div>
+                    <div class="command-item">
                         <span class="command-label">Trivy filesystem</span>
-                        <pre class="command-block"><code>trivy fs --format json --output trivy-fs-report.json .</code></pre>
+                        <div class="command-shell">
+                            <pre class="command-block"><code>trivy fs --format json --output trivy-fs-report.json .</code></pre>
+                            <span class="copy-feedback" data-copy-feedback>Copied</span>
+                            <button class="copy-btn" type="button" data-copy-command data-copy-command-label="Copy Trivy filesystem command" aria-label="Copy Trivy filesystem command">
+                                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                    <rect x="9" y="9" width="10" height="10" rx="2" stroke="currentColor" stroke-width="1.8"></rect>
+                                    <path d="M7 15H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
+                                </svg>
+                            </button>
+                        </div>
                     </div>
 
-                    <div>
+                    <div class="command-item">
                         <span class="command-label">Trivy image</span>
-                        <pre class="command-block"><code>trivy image --format json --output trivy-image-report.json your-image:tag</code></pre>
+                        <div class="command-shell">
+                            <pre class="command-block"><code>trivy image --format json --output trivy-image-report.json your-image:tag</code></pre>
+                            <span class="copy-feedback" data-copy-feedback>Copied</span>
+                            <button class="copy-btn" type="button" data-copy-command data-copy-command-label="Copy Trivy image command" aria-label="Copy Trivy image command">
+                                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                    <rect x="9" y="9" width="10" height="10" rx="2" stroke="currentColor" stroke-width="1.8"></rect>
+                                    <path d="M7 15H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
+                                </svg>
+                            </button>
+                        </div>
                     </div>
 
-                    <div>
+                    <div class="command-item">
                         <span class="command-label">Bandit</span>
-                        <pre class="command-block"><code>bandit -r . -f json -o bandit-report.json</code></pre>
+                        <div class="command-shell">
+                            <pre class="command-block"><code>bandit -r . -f json -o bandit-report.json</code></pre>
+                            <span class="copy-feedback" data-copy-feedback>Copied</span>
+                            <button class="copy-btn" type="button" data-copy-command data-copy-command-label="Copy Bandit command" aria-label="Copy Bandit command">
+                                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                    <rect x="9" y="9" width="10" height="10" rx="2" stroke="currentColor" stroke-width="1.8"></rect>
+                                    <path d="M7 15H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
+                                </svg>
+                            </button>
+                        </div>
                     </div>
 
-                    <div>
+                    <div class="command-item">
                         <span class="command-label">ZAP baseline</span>
-                        <pre class="command-block"><code>zap-baseline.py -t https://example.com -J zap-report.json</code></pre>
+                        <div class="command-shell">
+                            <pre class="command-block"><code>zap-baseline.py -t https://example.com -J zap-report.json</code></pre>
+                            <span class="copy-feedback" data-copy-feedback>Copied</span>
+                            <button class="copy-btn" type="button" data-copy-command data-copy-command-label="Copy ZAP baseline command" aria-label="Copy ZAP baseline command">
+                                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                    <rect x="9" y="9" width="10" height="10" rx="2" stroke="currentColor" stroke-width="1.8"></rect>
+                                    <path d="M7 15H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
+                                </svg>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -785,21 +1012,21 @@
         </section>
 
         <section class="card">
-            <h2>Report Actions</h2>
-            <p>HTML and PDF are temporary in-memory artifacts.</p>
-            <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
-                {% if html %}
-                <a class="btn" href="{{ html }}" target="_blank" rel="noopener noreferrer">Open HTML report</a>
-                {% endif %}
-                {% if pdf %}
-                <a class="btn secondary disabled" href="{{ pdf }}" target="_blank" rel="noopener noreferrer" data-pdf-download>Download PDF report</a>
-                {% endif %}
-            </div>
+            <!-- <h2>Report Actions</h2> -->
+            <!-- <p>HTML and PDF are temporary in-memory artifacts.</p> -->
             {% if pdf_status_url is defined and pdf_status_url %}
             <p class="muted" data-pdf-status data-status-url="{{ pdf_status_url }}" style="margin-top:8px;">Preparing PDF in background...</p>
             <div class="progress"><div data-pdf-progress-fill></div></div>
             <p class="muted" data-pdf-progress-text style="margin-top:6px;">Estimated progress: 0%</p>
             {% endif %}
+            <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+                <!-- {% if html %}
+                <a class="btn" href="{{ html }}" target="_blank" rel="noopener noreferrer">Open HTML report</a>
+                {% endif %} -->
+                {% if pdf %}
+                <a class="btn secondary disabled" href="{{ pdf }}" target="_blank" rel="noopener noreferrer" data-pdf-download>Download PDF report</a>
+                {% endif %}
+            </div>
         </section>
 
         {% if scan_summary is defined and scan_summary %}
@@ -835,21 +1062,34 @@
 
         <section class="card">
             <h2>Detailed Findings by Report</h2>
-            <div class="chips" id="severity-toolbar">
-                <span class="muted" style="align-self:center;">Filter:</span>
-                <button class="chip active" type="button" data-severity-filter="All">All</button>
-                {% for severity in severity_order %}
-                <button class="chip" type="button" data-severity-filter="{{ severity }}">{{ severity }}</button>
-                {% endfor %}
+            <div class="toolbar">
+                <input
+                    class="search-input"
+                    type="search"
+                    data-finding-search
+                    placeholder="Search by title, description, remediation, file, tool, or OWASP..."
+                    aria-label="Search findings"
+                >
+                <div class="chips" id="severity-toolbar">
+                    <span class="muted" style="align-self:center;">Filter:</span>
+                    <button class="chip active" type="button" data-severity-filter="All">All</button>
+                    {% for severity in severity_order %}
+                    <button class="chip" type="button" data-severity-filter="{{ severity }}">{{ severity }}</button>
+                    {% endfor %}
+                </div>
             </div>
 
             {% for group in grouped_reports %}
-            <article class="report-group">
+            <article class="report-group" data-report-group data-search-text="{{ (group.source_file ~ ' ' ~ group.scan_type ~ ' ' ~ group.tool)|lower }}">
                 <h3>{{ group.source_file }}</h3>
                 <p style="margin-top:4px;">Scan Type: {{ group.scan_type }} | Tool: {{ group.tool }} | Findings: {{ group.total }}</p>
 
                 {% for finding in group.findings %}
-                <article class="finding" data-severity="{{ finding.severity or 'Low' }}">
+                <article
+                    class="finding"
+                    data-severity="{{ finding.severity or 'Low' }}"
+                    data-search-text="{{ ((finding.title or 'Untitled finding') ~ ' ' ~ (finding.description or '') ~ ' ' ~ (finding.fix or '') ~ ' ' ~ (finding.tool or 'Unknown') ~ ' ' ~ (finding.owasp or 'Unknown') ~ ' ' ~ group.source_file ~ ' ' ~ group.scan_type)|lower }}"
+                >
                     <h3>{{ finding.title or "Untitled finding" }}</h3>
                     <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:8px;">
                         <span class="badge {{ finding.severity or 'Low' }}">{{ finding.severity or "Low" }}</span>
@@ -867,20 +1107,98 @@
     </div>
 
     <script>
+        const reportToast = document.querySelector('[data-report-toast]');
+        const reportToastClose = document.querySelector('[data-toast-close]');
+
+        if (reportToast) {
+            window.requestAnimationFrame(() => {
+                reportToast.classList.add('visible');
+            });
+
+            const dismissToast = () => {
+                reportToast.classList.remove('visible');
+            };
+
+            if (reportToastClose) {
+                reportToastClose.addEventListener('click', dismissToast);
+            }
+
+            window.setTimeout(dismissToast, 4500);
+        }
+
+        const copyButtons = document.querySelectorAll('[data-copy-command]');
+
+        copyButtons.forEach((button) => {
+            button.addEventListener('click', async () => {
+                const shell = button.closest('.command-shell');
+                const code = shell ? shell.querySelector('code') : null;
+                const feedback = shell ? shell.querySelector('[data-copy-feedback]') : null;
+                const command = code ? code.textContent.trim() : '';
+                if (!command) return;
+
+                try {
+                    await navigator.clipboard.writeText(command);
+                    button.classList.add('copied');
+                    button.setAttribute('aria-label', 'Command copied');
+                    if (feedback) feedback.classList.add('visible');
+
+                    window.setTimeout(() => {
+                        button.classList.remove('copied');
+                        button.setAttribute('aria-label', button.getAttribute('data-copy-command-label') || 'Copy command');
+                        if (feedback) feedback.classList.remove('visible');
+                    }, 1600);
+                } catch (_error) {
+                    if (feedback) {
+                        feedback.textContent = 'Copy failed';
+                        feedback.classList.add('visible');
+                        window.setTimeout(() => {
+                            feedback.textContent = 'Copied';
+                            feedback.classList.remove('visible');
+                        }, 1800);
+                    }
+                }
+            });
+        });
+
+        const searchInput = document.querySelector('[data-finding-search]');
         const severityButtons = document.querySelectorAll('[data-severity-filter]');
         const findingCards = document.querySelectorAll('[data-severity]');
+        const reportGroups = document.querySelectorAll('[data-report-group]');
+        let selectedSeverity = 'All';
+
+        const applyFindingFilters = () => {
+            const searchTerm = (searchInput ? searchInput.value : '').trim().toLowerCase();
+
+            findingCards.forEach((card) => {
+                const severity = card.getAttribute('data-severity') || 'Low';
+                const searchText = card.getAttribute('data-search-text') || '';
+                const severityMatch = selectedSeverity === 'All' || selectedSeverity === severity;
+                const searchMatch = !searchTerm || searchText.includes(searchTerm);
+                card.style.display = severityMatch && searchMatch ? 'block' : 'none';
+            });
+
+            reportGroups.forEach((group) => {
+                const groupText = group.getAttribute('data-search-text') || '';
+                const anyVisibleFindings = Array.from(group.querySelectorAll('.finding')).some((finding) => finding.style.display !== 'none');
+                const groupMatches = !searchTerm || groupText.includes(searchTerm);
+                group.style.display = anyVisibleFindings || groupMatches ? 'block' : 'none';
+            });
+        };
 
         severityButtons.forEach((button) => {
             button.addEventListener('click', () => {
-                const selected = button.getAttribute('data-severity-filter');
+                selectedSeverity = button.getAttribute('data-severity-filter') || 'All';
                 severityButtons.forEach((b) => b.classList.remove('active'));
                 button.classList.add('active');
-                findingCards.forEach((card) => {
-                    const sev = card.getAttribute('data-severity') || 'Low';
-                    card.style.display = selected === 'All' || selected === sev ? 'block' : 'none';
-                });
+                applyFindingFilters();
             });
         });
+
+        if (searchInput) {
+            searchInput.addEventListener('input', applyFindingFilters);
+        }
+
+        applyFindingFilters();
 
         const pdfStatusEl = document.querySelector('[data-pdf-status]');
         const pdfDownload = document.querySelector('[data-pdf-download]');
