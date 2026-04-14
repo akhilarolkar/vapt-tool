@@ -1,11 +1,9 @@
 import asyncio
 import json
 import uuid
-from pathlib import Path
 
-from fastapi import FastAPI, UploadFile, File, Request
-from fastapi.responses import HTMLResponse
-from fastapi.staticfiles import StaticFiles
+from fastapi import FastAPI, UploadFile, File, Request, HTTPException
+from fastapi.responses import HTMLResponse, Response
 from fastapi.templating import Jinja2Templates
 
 from app.parsers.trivy import parse_trivy
@@ -13,16 +11,16 @@ from app.parsers.zap import parse_zap
 from app.parsers.bandit import parse_bandit
 from app.core.normalize import normalize
 from app.core.owasp import map_owasp
-from app.reports.generator import generate_report
+from app.reports.generator import (
+    create_report_session,
+    get_report_session,
+    render_report_html,
+    render_report_pdf_bytes,
+)
 
 app = FastAPI()
 
 templates = Jinja2Templates(directory="app/ui/templates")
-REPORTS_DIR = Path("reports")
-REPORTS_DIR.mkdir(exist_ok=True)
-
-# Serve generated reports
-app.mount("/reports", StaticFiles(directory=str(REPORTS_DIR)), name="reports")
 
 
 def detect_and_parse(data):
@@ -93,14 +91,15 @@ async def upload(files: list[UploadFile] = File(...)):
     vulns, _summary = await asyncio.to_thread(prepare_vulnerabilities, vulns)
 
     report_id = str(uuid.uuid4())
-    report_paths = await asyncio.to_thread(generate_report, vulns, report_id)
+    await asyncio.to_thread(create_report_session, report_id, vulns, uploaded_files, errors)
 
     return {
-        "message": "Combined report generated",
+        "message": "Combined report prepared. HTML and PDF are generated on demand.",
         "processed_files": uploaded_files,
         "errors": errors,
-        "html_report": f"/reports/{report_paths['html']}",
-        "pdf_report": f"/reports/{report_paths['pdf']}",
+        "session_id": report_id,
+        "html_report": f"/reports/{report_id}/html",
+        "pdf_report": f"/reports/{report_id}/pdf",
         "total_vulnerabilities": len(vulns)
     }
 
@@ -135,7 +134,7 @@ async def upload_ui(request: Request, files: list[UploadFile] = File(...)):
     vulns, summary = await asyncio.to_thread(prepare_vulnerabilities, vulns)
 
     report_id = str(uuid.uuid4())
-    report_paths = await asyncio.to_thread(generate_report, vulns, report_id)
+    await asyncio.to_thread(create_report_session, report_id, vulns, uploaded_files, errors)
 
     return templates.TemplateResponse(
         request=request,
@@ -147,7 +146,34 @@ async def upload_ui(request: Request, files: list[UploadFile] = File(...)):
             "total": len(vulns),
             "errors": errors,
             "uploaded_files": uploaded_files,
-            "pdf": f"/reports/{report_paths['pdf']}",
-            "html": f"/reports/{report_paths['html']}",
+            "pdf": f"/reports/{report_id}/pdf",
+            "html": f"/reports/{report_id}/html",
+            "report_session_ttl_minutes": 30,
+        },
+    )
+
+
+@app.get("/reports/{session_id}/html", response_class=HTMLResponse)
+async def view_report_html(session_id: str):
+    session = await asyncio.to_thread(get_report_session, session_id)
+    if not session:
+        raise HTTPException(status_code=404, detail="Report session not found or expired.")
+
+    html_content = await asyncio.to_thread(render_report_html, session)
+    return HTMLResponse(content=html_content)
+
+
+@app.get("/reports/{session_id}/pdf")
+async def download_report_pdf(session_id: str):
+    session = await asyncio.to_thread(get_report_session, session_id)
+    if not session:
+        raise HTTPException(status_code=404, detail="Report session not found or expired.")
+
+    pdf_bytes = await asyncio.to_thread(render_report_pdf_bytes, session)
+    return Response(
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={
+            "Content-Disposition": f'attachment; filename="vapt-report-{session_id}.pdf"'
         },
     )

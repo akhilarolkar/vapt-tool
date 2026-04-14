@@ -33,7 +33,7 @@ end
 # Unset irrelevant variables.
 deactivate nondestructive
 
-set -gx VIRTUAL_ENV /home/akhil/Projects/vapt-mvp/venv
+set -gx VIRTUAL_ENV /home/aditya/DMT_Data/vapt-tool/venv
 
 set -gx _OLD_VIRTUAL_PATH $PATH
 set -gx PATH "$VIRTUAL_ENV/"bin $PATH

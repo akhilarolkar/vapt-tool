@@ -736,7 +736,7 @@
                     <p>
                         Upload one or more JSON outputs from Trivy, Trivy image scans, Bandit, or ZAP.
                         The platform consolidates findings, normalizes severities, maps OWASP tags, and
-                        generates a ready-to-share HTML and PDF report.
+                        prepares a temporary report session so HTML and PDF are rendered only when you open them.
                     </p>
                     <div class="hero-points">
                         <span class="hero-point">Multi-file upload</span>
@@ -762,7 +762,7 @@
                         </div>
                         <div class="hero-stat">
                             <span>Report outputs</span>
-                            <strong>Interactive HTML and PDF</strong>
+                            <strong>On-demand HTML and PDF</strong>
                         </div>
                     </div>
                 </aside>
@@ -834,14 +834,19 @@
                         </article>
 
                         <article class="result-card">
-                            <h3>Generated report files</h3>
-                            <p>Open the interactive HTML report or download the PDF for distribution.</p>
+                            <h3>Report actions</h3>
+                            <p>
+                                Files are not saved on server disk. HTML and PDF are generated only when clicked.
+                                {% if report_session_ttl_minutes is defined %}
+                                Links stay active for about {{ report_session_ttl_minutes }} minutes.
+                                {% endif %}
+                            </p>
                             <div class="action-row" style="margin-top: 16px;">
                                 {% if html is defined and html %}
                                 <a class="button" href="{{ html }}" target="_blank" rel="noopener noreferrer">Open HTML report</a>
                                 {% endif %}
                                 {% if pdf is defined and pdf %}
-                                <a class="button secondary" href="{{ pdf }}" target="_blank" rel="noopener noreferrer">Open PDF report</a>
+                                <a class="button secondary" href="{{ pdf }}" target="_blank" rel="noopener noreferrer">Download PDF report</a>
                                 {% endif %}
                             </div>
                         </article>
@@ -919,7 +924,7 @@
                         <ul>
                             <li>Generate JSON from one or more supported scanners.</li>
                             <li>Upload multiple files together if you want a single consolidated report.</li>
-                            <li>The resulting package includes normalized summary counts plus HTML and PDF outputs.</li>
+                            <li>The resulting report session provides temporary on-demand HTML and PDF outputs.</li>
                         </ul>
                     </div>
                 </section>
@@ -1007,8 +1012,8 @@ Save the file, then upload it in this dashboard.</code></pre>
             <div class="loading-spinner" aria-hidden="true"></div>
             <h3>Building your consolidated report</h3>
             <p>
-                Uploads are being validated, merged, and rendered into HTML and PDF. This can take a little longer
-                when several files are submitted together.
+                Uploads are being validated and merged. HTML and PDF are generated only when you click
+                the report actions, which keeps upload time faster for larger batches.
             </p>
         </div>
     </div>

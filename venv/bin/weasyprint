@@ -1,4 +1,4 @@
-#!/home/akhil/Projects/vapt-mvp/venv/bin/python3
+#!/home/aditya/DMT_Data/vapt-tool/venv/bin/python3
 # -*- coding: utf-8 -*-
 import re
 import sys
